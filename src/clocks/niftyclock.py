@@ -11,6 +11,7 @@ months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec
 def drawTime():
     t=rtc.datetime()
     g.fill(BLACK)
+    g.setfontalign(-1,-1)
     g.setfont(hugefont)
     g.text("{:02}".format(t[4]),X,40,WHITE)
     g.text("{:02}".format(t[5]),X,130,WHITE)

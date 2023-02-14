@@ -28,9 +28,9 @@ def dial(t):
     png.drawPNG(dialpic,0,0)
     ds = '{:02}.{:s}'.format(t[2],months[t[1]-1])
     g.setfont(roboto24)
-    len_ds = g.getfont().get_width(ds)
+    g.setfontalign(0,-1)
     g.setcolor(BLACK,WHITE)
-    g.text(ds,CX-len_ds//2,70)
+    g.text(ds,CX,70)
 
 def secH(a,c):
     drawRotRect(2,3,R-25,a,c)

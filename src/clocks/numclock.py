@@ -22,7 +22,7 @@ GREY = rgb(220,220,220)
 def dial():
     g.setcolor(WHITE)
     g.setfont(roboto24)
-    h = roboto24.height()//2
+    g.setfontalign(0,0)
     r = R-10
     for i in range(1,13):
         a = i*math.pi/180
@@ -31,8 +31,7 @@ def dial():
         if i == 12 or i == 11 or i == 1:
             y+=3
         s = str(i)
-        w = roboto24.get_width(s)//2
-        g.text(s,x-w,y-h) 
+        g.text(s,x,y) 
 
 def secH(a,c):
     drawRotRect(2,3,R-30,a,c)

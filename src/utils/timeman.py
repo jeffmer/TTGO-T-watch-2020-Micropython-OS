@@ -37,9 +37,8 @@ start.callback(button_action)
 def app_init():
     zone.drawInit(settings.timezone)
     g.setfont(roboto36)
-    title = "Sync Time"
-    ll = roboto36.get_width(title)
-    g.text(title,(240-ll)//2,115,WHITE)
+    g.setfontalign(0,-1)
+    g.text("Sync Time",120,115,WHITE)
     status.update('Idle',False)
     progress.update('',False)
     buttons.start()

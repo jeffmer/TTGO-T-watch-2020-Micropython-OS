@@ -29,9 +29,9 @@ def drawValue():
     color = colors[AlarmState]
     g.setfont(bignumfont)
     s = "{:02}:{:02}".format(Hours,Minutes)
-    w = g.getfont().get_width(s)
-    h = g.getfont().height()
+    w,h = g.text_dim(s)
     g.fill_rect(X-w//2-3,Y-h//2-3,w+6,h+6,color)
+    g.setfontalign(-1,-1)
     g.text(s,X-w//2,Y-h//2,WHITE if AlarmState==0 else GREY)
     g.show()
 
@@ -92,9 +92,8 @@ def app_init():
     AlarmState,Minutes,Hours = prtc.read_alarm()
     Hours = to_local(Hours)
     g.setfont(roboto36)
-    title = "Alarm"
-    ll = roboto36.get_width(title)
-    g.text(title,(240-ll)//2,10,WHITE)
+    g.setfontalign(0,-1)
+    g.text("Alarm",120,10,WHITE)
     drawValue()
     buttons.start()
     if AlarmState == 2:

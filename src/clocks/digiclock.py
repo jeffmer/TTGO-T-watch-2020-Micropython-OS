@@ -6,6 +6,7 @@ def drawtime():
     t = rtc.datetime()
     g.fill(BLACK)
     g.setfont(hugefont)
+    g.setfontalign(-1,-1)
     g.text("{:02}".format(t[4]),0,45,WHITE)
     g.text("{:02}".format(t[5]),125,45,CYAN)
     g.text("{:02}".format(t[6]),125,130,LIGHTGREY)

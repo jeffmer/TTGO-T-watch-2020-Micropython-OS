@@ -49,11 +49,10 @@ numpos = calcnumpos()
   
 def numdial():
     g.setfont(roboto18)
-    fw = g.getfont().get_width("00")//2
-    fh = g.getfont().height()//2
+    g.setfontalign(0,0)
     for a in range(0,12):
         s = "{:02}".format(60 if a==0 else a*5)
-        g.text(s,numpos[a*2]-fw,numpos[a*2+1]-fh,GREY)
+        g.text(s,numpos[a*2],numpos[a*2+1],GREY)
 
 def secH(a,c):
     drawRotRect(2,3,R-30,a,c)

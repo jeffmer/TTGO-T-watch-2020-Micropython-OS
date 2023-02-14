@@ -55,9 +55,9 @@ def updateDisplay(dd):
 
 def centre_text(str,font,x,y,c):
     global g
-    str_x = x-font.get_width(str)//2
     g.setfont(font)
-    g.text(str,str_x,y,c)
+    g.setfontalign(0,-1)
+    g.text(str,x,y,c)
 
 def drawDisplay():
     g.fill_rect(0,0,240,200,BLACK)
@@ -66,6 +66,7 @@ def drawDisplay():
     g.fill_rect(140,70,96,96,WHITE) 
     png.drawPNG(displayicon,140,70)
     xoffset = 10
+    g.setfontalign(-1,-1)
     g.setfont(roboto36)
     g.text(display['temp'],xoffset,60,WHITE)
     g.setfont(roboto18)

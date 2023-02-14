@@ -19,8 +19,6 @@ class Button:
         self._theme = Theme(WHITE,BLUE,GREEN,WHITE,roboto24) if theme is None else theme
         if not font is None:
             self._theme._font = font
-        self.str_x = x+(w - self._theme._font.get_width(str))//2
-        self.str_y = y+(h - self._theme._font.height())//2
         self.x = x
         self.y = y
         self.w = w
@@ -39,7 +37,8 @@ class Button:
         g.fill_rect(self.x,self.y,self.w,self.h,c)
         if c != self._theme._bd:
             g.rect(self.x,self.y,self.w,self.h,self._theme._bd)
-        g.text(self.str,self.str_x,self.str_y,self._theme._fg)
+        g.setfontalign(0,0)
+        g.text(self.str,self.x+self.w//2,self.y+self.h//2,self._theme._fg)
         g.setcolor(WHITE,BLACK)
         if now:
             g.show()
@@ -72,7 +71,8 @@ class RoundButton(Button):
         g.ellipse(cx,cy,self.w//2,self.h//2,c,True)
         if c != self._theme._bd:
             g.ellipse(cx,cy,self.w//2,self.h//2,self._theme._bd,False)
-        g.text(self.str,self.str_x,self.str_y,self._theme._fg)
+        g.setfontalign(0,0)
+        g.text(self.str,cx,cy,self._theme._fg)
         g.setcolor(WHITE,BLACK)
         if now:
             g.show()
@@ -105,7 +105,8 @@ class ArrowButton(Button):
         if c != self._theme._bd:
             g.poly(0,0,self._arrow,self._theme._bd,False)
         if self.str != "":
-            g.text(self.str,self.str_x,self.str_y,self._theme._fg)
+            g.setfontalign(0,0)
+            g.text(self.str,self.x+self.w//2,self.y+self.h//2,self._theme._fg)
         g.setcolor(WHITE,BLACK)
         if now:
             g.show()

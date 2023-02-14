@@ -60,6 +60,7 @@ class Graphics(framebuf.FrameBuffer):
         self.width = w
         self.height = h
         self._font = glcdfont
+        self._align = (-1,-1) # top left
         self.palette = BoolPalette(mode)
         self.fgcolor = WHITE
         self.bgcolor = BLACK
@@ -80,6 +81,7 @@ class Graphics(framebuf.FrameBuffer):
         self.maxX = -9999
         self.minY = 9999
         self.maxY = -9999
+        self._align = (-1,-1)
         
     def fill(self,c):
         self.updateMod(0,0,self.width-1,self.height-1)
@@ -135,13 +137,18 @@ class Graphics(framebuf.FrameBuffer):
                 self.bgcolor = bgcolor
         return self.fgcolor, self.bgcolor
 
-    def stringlen(self,str):
-        return self._font.get_width(str)
+    def setfontalign(self,xalign,yalign):
+        self._align = (xalign,yalign) 
+
+    def text_dim(self,str):
+        return self._font.get_width(str),self._font.height()
     
     def text(self, str, x, y, c=None):
-        str_w  = self._font.get_width(str)
-        str_h  = self._font.height()
-        div, rem = divmod(self._font.height(),8)
+        str_w, str_h  = self.text_dim(str)
+        x_a,y_a = self._align
+        x = x if x_a == -1 else x - str_w if x_a == 1 else x - str_w//2
+        y = y if y_a == -1 else y - str_h if y_a == 1 else y - str_h//2
+        div, rem = divmod(str_h,8)
         nbytes = div+1 if rem else div
         buf = bytearray(str_w * nbytes)
         pos = 0

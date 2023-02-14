@@ -30,10 +30,9 @@ output = ""
 def drawOutput(now=True):
     global output
     g.fill_rect(4,0,g.width-8,40,GREY)
-    w = roboto36.get_width(output)
-    h = roboto36.height()
     g.setfont(roboto36)
-    g.text(output,120-w//2,2,WHITE)
+    g.setfontalign(0,-1)
+    g.text(output,120,2,WHITE)
     if now:
         g.show()
 

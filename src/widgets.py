@@ -17,10 +17,9 @@ class Label:
 
     def update(self,str,now=True):
         g.setfont(self.font)
-        str_x = self.x+(self.w -self.font.get_width(str))//2
-        str_y = self.y+(self.h - self.font.height())//2
         g.fill_rect(self.x,self.y,self.w,self.h,BLACK)
-        g.text(str,str_x,str_y,self.c)
+        g.setfontalign(0,0)
+        g.text(str,self.x+self.w//2,self.y+self.h//2,self.c)
         if now:
             g.show()
 
@@ -57,18 +56,17 @@ class ValueDisplay:
     def drawVal(self,v,now=True):
         g.setfont(roboto36)
         s = "{}".format(v)
-        w = roboto36.get_width(s)
-        h = roboto36.height()
         g.fill_rect(_X,self._YOFF+_Y,_W,_H,LIGHTGREY)
         g.fill_rect(_X+_B,self._YOFF+_Y+_B,_W-2*_B,_H-2*_B,GREY)
-        g.text(s,120-w//2,self._YOFF+_Y+3,WHITE)
+        g.setfontalign(0,-1)
+        g.text(s,120,self._YOFF+_Y+3,WHITE)
         if now:
             g.show()
 
     def drawInit(self,v):
         g.setfont(roboto36)
-        ll = roboto36.get_width(self._title)
-        g.text(self._title,(240-ll)//2,self._YOFF,WHITE)
+        g.setfontalign(0,-1)
+        g.text(self._title,120,self._YOFF,WHITE)
         if self._barorval:
             self.drawBar(v,False)
         else:
@@ -115,7 +113,8 @@ class SwitchPanel(Button):
         if not now: # draw background
             self._drawroundrect(0,self._Y,g.width-1,self._HT,LIGHTGREY)
             g.setfont(self.theme._font)
-            y = self._Y + (self._HT - g.getfont().height())//2
+            y = self._Y + self._HT//2
+            g.setfontalign(-1,0)
             g.text(self._str,self._HT//2,y,self.theme._fg)
         self._drawswitch(g.width-60,self._Y+6,54,31,self._state)
         if now:
