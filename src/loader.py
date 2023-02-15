@@ -72,19 +72,29 @@ def changelevel(dir):
         rings[oldlevel].end()
         rings[level].begin()
 
+
+_APP_LOCK = False 
+
+def setapplock(b):
+    global _APP_LOCK
+    _APP_LOCK = b
+
 def jump_to_alarm():
     global level, rings, utilRing
     res = utilRing.find("alarm")
     if res<0:
         return
     else:
+        setapplock(False)
         rings[level].end()
         utilRing.curr = res
         level = 2
         rings[level].begin()
-       
+
 def touched(tch):
-    global level
+    global level, _APP_LOCK
+    if _APP_LOCK:
+        return
     if tch[2]==SWIPE_RIGHT:
         rings[level].switch(1)
     elif tch[2]==SWIPE_LEFT:
