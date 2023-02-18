@@ -117,6 +117,11 @@ class Board:
 
     def gap(self):
         return self._gpos
+
+    def draw_score(self):
+        g.setfont(hugefont)
+        g.setfontalign(0,0)
+        g.text(str(self._moves),120,120,RED) 
     
     def move(self,pos):
         src = self._tiles[pos]
@@ -128,10 +133,12 @@ class Board:
         self._gpos = pos
         self._moves+=1
         if self.ended():
-            g.setfont(hugefont)
-            g.setfontalign(0,0)
-            g.text(str(self._moves),120,120,RED)        
-        g.show()
+            self.draw_score()
+            g.show()
+            return True
+        else:
+            g.show()
+            return False
             
     def drawall(self):
         for i in range(0,TILES):
@@ -143,7 +150,8 @@ def onswipe(tch):
     tileno = nextpos(bd.gap(),tch[2])
     if tileno<0:
         return
-    bd.move(tileno)
+    if bd.move(tileno):
+        actPause()
 
 def safeswipe(tch):
     sched.setTimeout(10,onswipe,tch)
@@ -180,6 +188,8 @@ pause.callback(actPause)
 def app_init():
     g.fill(LIGHTGREY)
     bd.drawall()
+    if bd.ended():
+        bd.draw_score()
     buttons.start()
 
 def app_end():
