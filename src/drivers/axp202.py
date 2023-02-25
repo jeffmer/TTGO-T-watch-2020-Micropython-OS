@@ -1,6 +1,8 @@
 from micropython import const
+from machine import Pin,SLEEP
 from time import sleep_ms
 from config import VERSION
+from scheduler import Event
 
 LD02 = const(0x02)
 EXTEN =  const(0x00)
@@ -8,12 +10,19 @@ DCDC2 = const(0x04)
 LD04 = const(0x03)
 LD03 = const(0x06)
 
-class AXP202:
+class AXP202(Event):
 
-    def __init__(self,i2c):
+    def __init__(self,i2c,pmp):
+        super().__init__()
         self.i2c = i2c
         self.temp = bytearray(2)
         self.one = bytearray(1)
+        self._pmp = pmp
+        # disable all interrupts
+        for a in range(0x40,0x45):
+            self.writeByte(a,0)
+        self.clearIRQ()
+        self._pmp.irq(self.isr,Pin.IRQ_LOW_LEVEL,wake=SLEEP)
 
     def writeByte(self,a,d):
         self.temp[0] = a
@@ -24,7 +33,25 @@ class AXP202:
         self.one[0] = a
         self.i2c.writeto(0x35,self.one)
         return self.i2c.readfrom(0x35,1)[0]
+    
+    def clearIRQ(self):
+        self.i2c.writeto(0x35,b'\x48')
+        status = self.i2c.readfrom(0x35,5)
+        for a in range(0x48,0x4D):
+            self.writeByte(a,0xFF)
+        return status
 
+    def enableIRQ(self,reg,bit):
+        v = self.readByte(reg)
+        v = v | 1<<bit
+        self.writeByte(reg,v)
+
+
+    def isr(self,p):
+        self.irq_signal(self.clearIRQ())
+        p.enable()
+
+        
     def setPower(self,bus,state):
         buf = self.readByte(0x12)
         data = (buf | 0x01<<bus) if state else (buf & ~(0x01<<bus))

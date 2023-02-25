@@ -2,7 +2,7 @@
 from micropython import const,schedule
 from time import sleep_ms
 from bma_config import bma_blob
-from machine import Pin
+from machine import Pin,SLEEP
 from scheduler import Event
 from config import VERSION  
 
@@ -79,6 +79,7 @@ class BMA423(Event):
 
     def isr(self,p):
         self.irq_signal(self.readBytes(0x1C,1))
+        p.enable()
 
     # also enables double tap
     def wristInit(self):
@@ -91,7 +92,7 @@ class BMA423(Event):
         elif VERSION == 2:
             feature[0x44] = 0x81 # z =2, y_sign =0, y=0, x_sign=0 x =1
         self.configWrite(feature,256)
-        self.ap.irq(self.isr,Pin.IRQ_FALLING)
+        self.ap.irq(self.isr,Pin.IRQ_LOW_LEVEL,wake=SLEEP)
         self.readBytes(0x1C,1) # clear any previous motion interrupt
         self.writeByte(0x56,0x18) #  map wrist and double tap interrupt to INT 1
         self.writeByte(0x53,0x08) # enable INT 1 output 

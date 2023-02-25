@@ -1,4 +1,4 @@
-from machine import Pin,SPI,I2C,RTC,Timer,lightsleep,wake_reason,PIN_WAKE
+from machine import Pin,SPI,I2C,RTC,Timer,lightsleep,wake_reason,SLEEP
 from drivers.axp202 import AXP202
 from drivers.st7789 import ST7789
 from drivers.pcf8563 import PCF8563
@@ -68,9 +68,11 @@ class Settings():
 settings = Settings()
 
 # power management
+pmp = Pin(35,Pin.IN)
 I2C1 = I2C(1,scl=Pin(22),sda=Pin(21),freq=400000)
-pm = AXP202(I2C1)
+pm = AXP202(I2C1,pmp)
 pm.init()
+pm.enableIRQ(0x44,5) #  PEK press falling edge
 
 # lcd display
 spi = SPI(1, 32000000, sck=Pin(18), mosi=Pin(19), miso=Pin(23))
@@ -136,12 +138,9 @@ def dolightsleep(e):
     if VERSION==2:
         tc.hibernate()
     pm.lowpower(True)
-    # wake every 30 seconds to check for alarm as micropython esp32 does not support gpio wake up
-    while True:
-        esp32.wake_on_ext0(ap,esp32.WAKEUP_ALL_LOW)
-        lightsleep(30000) 
-        if wake_reason() == PIN_WAKE or rtcp.value() == 0:
-            break
+    sleep_ms(100)
+    lightsleep() 
+    sleep_ms(100)
     pm.lowpower(False)
     if VERSION==2:
         tc.reset()
