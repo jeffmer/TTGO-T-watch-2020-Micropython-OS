@@ -56,11 +56,6 @@ class Ring:
         except:
             return -1
  
-appRing = Ring(apps)
-utilRing = Ring(utils)
-clockRing = Ring(clocks)
-rings = (appRing,clockRing,utilRing)
-level = 1
 
 def changelevel(dir):
     global level,rings
@@ -78,6 +73,22 @@ _APP_LOCK = False
 def setapplock(b):
     global _APP_LOCK
     _APP_LOCK = b
+    
+def getscreen():
+    global rings,level
+    rings[level].end()
+    setapplock(True)
+    
+def relscreen():
+    global rings,level
+    rings[level].begin()
+    setapplock(False)
+    
+appRing = Ring(apps)
+utilRing = Ring(utils)
+clockRing = Ring(clocks)
+rings = (appRing,clockRing,utilRing)
+level = 1
 
 def jump_to_alarm():
     global level, rings, utilRing

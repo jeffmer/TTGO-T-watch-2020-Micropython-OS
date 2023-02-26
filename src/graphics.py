@@ -168,7 +168,7 @@ class Graphics(framebuf.FrameBuffer):
         return str_w
         
     def wordwraptext(self, str, x, y, w, c=None):
-        curx = x; cury = y;
+        curx = x; cury = y
         char_h = self._font.height()
         char_w = self._font.max_width()
         lines = str.split('\n')
