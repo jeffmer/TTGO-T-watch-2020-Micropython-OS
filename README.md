@@ -135,17 +135,16 @@ The T-watch has 4 megabytes of SPIRAM. To exploit this to make the watch respons
 
 ## Installation
 
-1. Download a standard micropython image from https://micropython.org/download/esp32spiram/ Use a nightly build as the latest stable release does not include the `Framebuffer.ellipse` or `Framebuffer.poly` methods.
 
-2. Install the image on the t-watch - I use **thonny** from https://thonny.org/
+1. From the `firmware`folder install the image `firmware.bin`on the t-watch - I use **thonny** from https://thonny.org/. This image implements GPIO wake up from light sleep and gives access to the full 16M of flash  which the standard generic builds do not.
 
 
-3. Edit the `config.py` file setting  the  version of your T-watch 1 or 2, wifi network information open weather map key.
+2. Edit the `config.py` file setting  the  version of your T-watch 1 or 2, wifi network information open weather map key.
 
-4. Compile all the micropython file to bytecode by executing `compile.sh` in the `src` directory.
+3. Compile all the micropython file to bytecode by executing `compile.sh` in the `src` directory.
 
-5. Copy all the .mpy bytecode and .png imagefile to the T-watch by executing `install.sh`
-6. After executing the installation script, the watch should start loading as a `boot.py` file is copied to the T-watch. This contains the line `import loader` which starts the watch software.
+4. Copy all the .mpy bytecode and .png imagefile to the T-watch by executing `install.sh`
+5. After executing the installation script, the watch should start loading as a `boot.py` file is copied to the T-watch. This contains the line `import loader` which starts the watch software.
 
 
 
