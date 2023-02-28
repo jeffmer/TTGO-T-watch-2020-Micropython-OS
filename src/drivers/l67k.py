@@ -34,7 +34,7 @@ class L67K(Event):
         sleep_ms(250)
         # only ask for GGA
         self.uart.write("$PCAS03,1,0,0,0,0,0,0,0,0,0,,,0,0*03\r\n")
-        sleep_ms(250);
+        sleep_ms(250)
         # Switch to Vehicle Mode, since SoftRF enables Aviation < 2g
         self.uart.write("$PCAS11,3*1E\r\n")
 
@@ -55,17 +55,23 @@ class L67K(Event):
         self._pos = (conv(self.parser.latitude),conv(self.parser.longitude))
         if not self._timer is None:
             sched.clearInterval(self._timer)
+            self._timer = None
         self.signal(self._pos)
 
     def update(self):
-        self.power(True)
-        self.init()
-        self._timer = sched.setInterval(1000,self._getandparsebuf)
+        if self._timer is None:
+            self.power(True)
+            self.init()
+            self._timer = sched.setInterval(1000,self._getandparsebuf)
 
     def cancel_update():
         self.power(False)
         if not self._timer is None:
             sched.cancelInterval(self._timer)
+            self._timer = None
+
+    def updating(self):
+        return not self._timer is None
 
 '''
 gps = L67K()

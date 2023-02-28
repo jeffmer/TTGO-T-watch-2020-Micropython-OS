@@ -90,9 +90,9 @@ clockRing = Ring(clocks)
 rings = (appRing,clockRing,utilRing)
 level = 1
 
-def jump_to_alarm():
+def jump_to(app):
     global level, rings, utilRing
-    res = utilRing.find("alarm")
+    res = utilRing.find(app)
     if res<0:
         return
     else:
@@ -119,7 +119,7 @@ def makesafe(tch):
     sched.setTimeout(10,touched,tch)
 
 def alarmsafe(dummy):
-    sched.setTimeout(10,jump_to_alarm)
+    sched.setTimeout(10,jump_to,"alarm")
 
 touch = tc.addListener(makesafe)
 alarm = prtc.addListener(alarmsafe)
