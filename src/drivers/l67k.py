@@ -15,8 +15,6 @@ class L67K(Event):
         super().__init__()
         self.uart = UART(1, baudrate=9600, tx=26, rx=36, timeout=10)
         self.parser = MicropyGPS()
-        self._lat = 0.0
-        self._long = 0.0
         self._fix = False
         self._buf = bytearray(128)
         self._timer = None
@@ -26,6 +24,7 @@ class L67K(Event):
         pm.setPower(LD04,1 if on else 0)
 
     def init(self):
+        self._pos=None
         sleep_ms(500)
         self.uart.write("$PCAS03,0,0,0,0,0,0,0,0,0,0,,,0,0*02\r\n")
         sleep_ms(5)
@@ -64,10 +63,10 @@ class L67K(Event):
             self.init()
             self._timer = sched.setInterval(1000,self._getandparsebuf)
 
-    def cancel_update():
+    def cancel_update(self):
         self.power(False)
         if not self._timer is None:
-            sched.cancelInterval(self._timer)
+            sched.clearInterval(self._timer)
             self._timer = None
 
     def updating(self):
