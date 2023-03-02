@@ -19,14 +19,15 @@ buttons.add(update)
 buttons.add(cancel)
 buttons.add(save)
 
+saved = False
 
 def drawPos():
-    global gps
+    global gps, saved
     g.setfont(roboto24)
     if not gps._pos is None:
         g.setfontalign(-1,-1)
-        g.text("Lat : {:.4f}".format(gps._pos[0]),60,60,WHITE)
-        g.text("Long: {:.4f}".format(gps._pos[1]),60,90,WHITE)
+        g.text("Lat : {:.4f}".format(gps._pos[0]),60,60,GREEN if saved else WHITE)
+        g.text("Long: {:.4f}".format(gps._pos[1]),60,90,GREEN if saved else WHITE)
     else:
         g.setfontalign(0,-1)
         if not gps.updating():
@@ -36,15 +37,19 @@ def drawPos():
             
             
 def doupdate():
+    global saved
+    saved = False
     gps.update()
-    loader.jump_to("position")
+    loader.jump_to(loader.APPLEVEL,"position")
     
 def docancel():
     gps.cancel_update()
-    loader.jump_to("position")
+    loader.jump_to(loader.APPLEVEL,"position")
 
 def dosave():
-    loader.jump_to("position")
+    global saved
+    saved = True
+    loader.jump_to(loader.APPLEVEL,"position")
     if not gps._pos is None:
         s = json.dumps({"lat":gps._pos[0],"long":gps._pos[1]})
         with open("location.json","w") as f:
@@ -57,7 +62,7 @@ cancel.callback(docancel)
 save.callback(dosave)
 
 def onUpdate(pos):
-    loader.jump_to("position")
+    loader.jump_to(loader.APPLEVEL,"position")
 
 gps.addListener(onUpdate)
 

@@ -1,3 +1,4 @@
+from micropython import const
 from tempos import tc,prtc,sched, SWIPE_RIGHT,SWIPE_LEFT,SWIPE_DOWN,SWIPE_UP
 import os, apps, utils, clocks
 
@@ -83,23 +84,26 @@ def relscreen():
     global rings,level
     rings[level].begin()
     setapplock(False)
-    
+
+APPLEVEL = const(0)
+CLOCKLEVEL = const(1)
+UTILLEVEL = const(2)   
 appRing = Ring(apps)
 utilRing = Ring(utils)
 clockRing = Ring(clocks)
 rings = (appRing,clockRing,utilRing)
 level = 1
 
-def jump_to(app):
-    global level, rings, utilRing
-    res = utilRing.find(app)
+def jump_to(newlevel,app):
+    global level, rings
+    res = rings[newlevel].find(app)
     if res<0:
         return
     else:
         setapplock(False)
         rings[level].end()
         utilRing.curr = res
-        level = 2
+        level = newlevel
         rings[level].begin()
 
 def touched(tch):
@@ -119,7 +123,7 @@ def makesafe(tch):
     sched.setTimeout(10,touched,tch)
 
 def alarmsafe(dummy):
-    sched.setTimeout(10,jump_to,"alarm")
+    sched.setTimeout(10,jump_to,UTILLEVEL,"alarm")
 
 touch = tc.addListener(makesafe)
 alarm = prtc.addListener(alarmsafe)
