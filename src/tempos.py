@@ -183,7 +183,13 @@ class Buzzer:
             
 buzzer = Buzzer(motor)
 
-
+# sd card
+if VERSION == 2:
+    import os, sdcard
+    sdspi = SPI(2, 8000000, sck=Pin(14), mosi=Pin(15), miso=Pin(4))
+    sd = sdcard.SDCard(sdspi, Pin(13,Pin.OUT)) 
+    vfs = os.VfsFat(sd)
+    os.mount(vfs, "/sd")
 
 
 
