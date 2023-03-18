@@ -75,7 +75,7 @@ pm.init()
 pm.enableIRQ(0x44,5) #  PEK press falling edge
 
 # lcd display
-spi = SPI(1, 32000000, sck=Pin(18), mosi=Pin(19), miso=Pin(23))
+spi = SPI(2, 32000000, sck=Pin(18), mosi=Pin(19), miso=Pin(23))
 g = ST7789(spi, dc=Pin(27,Pin.OUT), cs=Pin(5,Pin.OUT),bl=Pin(25 if VERSION == 2 else 12))
 g.fill(BLACK)
 g.setcolor(WHITE,BLACK)
@@ -185,9 +185,9 @@ buzzer = Buzzer(motor)
 
 # sd card
 if VERSION == 2:
-    import os, sdcard
-    sdspi = SPI(2, 8000000, sck=Pin(14), mosi=Pin(15), miso=Pin(4))
-    sd = sdcard.SDCard(sdspi, Pin(13,Pin.OUT)) 
+    import os
+    from machine import SDCard
+    sd = SDCard(slot=3, sck=Pin(14), mosi=Pin(15), miso=Pin(4),cs=Pin(13))
     vfs = os.VfsFat(sd)
     os.mount(vfs, "/sd")
 
