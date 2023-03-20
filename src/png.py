@@ -921,6 +921,25 @@ def getPNG(fn,key):
     machine.freq(saved)
     return (w,h,f,key)
 
+def saveRaw(fn,fnout):
+    saved = machine.freq()
+    machine.freq(240000000)
+    png_reader=Reader(filename=fn)
+    image_data = png_reader.asRGBA8()
+    w = image_data[0]
+    h = image_data[1]
+    rowbuf = bytearray(w*2)
+    f = framebuf.FrameBuffer(rowbuf,w,1,framebuf.RGB565)
+    fo = open(fnout,'wb')
+    for row in image_data[2]:
+        for c in range(0,w):
+            pos = c*4
+            col = rgb(row[pos],row[pos+1],row[pos+2])
+            f.pixel(c,0,col)
+        fo.write(rowbuf)
+    fo.close()
+    machine.freq(saved)
+
 def drawPNG(im,x,y):
     global g
     g.updateMod(x,y,x+im[0]-1,y+im[1]-1)
