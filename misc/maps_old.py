@@ -2,13 +2,11 @@ from tempos import g,tc,sched, TOUCH_DOWN, TOUCH_UP,BLACK
 from graphics import RED
 import machine
 from micropython import const
-from pngtile import PNG_Tile
 import math
 import json
-from time import ticks_ms,ticks_diff
 
 MAX = const(768) # 256 * 3
-
+map = open("/sd/maps/map.raw",'rb')
 
 def deg2num(lat_deg, lon_deg, zoom):
   lat_rad = math.radians(lat_deg)
@@ -26,38 +24,36 @@ def num2deg(xtile, ytile, zoom):
 
 def degtopx(left,right,pos):
     return int(256*(pos-left)/(right-left))
-
-def get_home():
+def get_loc():
     loc = json.loads(open("location.json").read())
     xy = deg2num(loc["lat"],loc["long"],16)
     topleft = num2deg(xy[0],xy[1],16)
     botright = num2deg(xy[0]+1,xy[1]+1,16)
-    return xy, (degtopx(topleft[1],botright[1],loc["long"]),degtopx(topleft[0],botright[0],loc["lat"]))
+    return (256+degtopx(topleft[1],botright[1],loc["long"]),256+degtopx(topleft[0],botright[0],loc["lat"]))
     
-TILE,XY = get_home()
+HOME = get_loc()
+XPOS = HOME[0]-120
+YPOS = HOME[1]-120
 
-TILES = [None,None,None,None]
-
-def get_tiles():
-    global HOME,XY
-    i = 0 if XY[0]>128 else 1
-    j = 0 if XY[1]>128 else 1
-    topx = TILE[0]-i
-    topy = TILE[1]-j
-    for j in range(2):
-        for i in range(2):
-            print(topx+i,topy+j)
-            TILES[i+2*j] = PNG_Tile(topx+i,topy+j,256*i,256*j)
-            
-def drawmap(x,y): # xy in tile coord space 0..511,0..511
-    now = ticks_ms()
-    x = 272 if x+240>512 else x
-    y = 272 if y+240>512 else y
-    for i in range(4):
-        TILES[i].draw_chunk(x,y,x+239,y+239)
+def drawmap(xoff,yoff):
+    global map
+    xoff =  MAX-240 if (xoff+240)>=MAX else xoff
+    yoff =  MAX-240 if (yoff+240)>=MAX else yoff
+    saved = machine.freq()
+    machine.freq(240000000)
+    bufaddr = memoryview(g._buf)
+    for y in range(240):
+       map.seek(xoff*2+(y+yoff)*1536)
+       map.readinto(bufaddr[y*480:(y+1)*480],480)
+    g.updateMod(0,0,239,239)
+    cx = HOME[0]-xoff
+    cy = HOME[1]-yoff
+    if (cx>0 and cx<240 and cy>0 and cy<240):
+        g.ellipse(cx,cy,5,5,RED,True)
     g.show()
-    print("Draw Time(ms): ",ticks_diff(ticks_ms(),now))
-    
+    machine.freq(saved)
+
+
 def ontouch(tch):
     global x,y,XPOS,YPOS
     if tch[2] == TOUCH_DOWN:

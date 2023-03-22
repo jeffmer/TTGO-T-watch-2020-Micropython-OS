@@ -17,8 +17,10 @@ def init_plte(plte,palette):
 
 class PNG_Tile:
     
-    def __init__(self,fname):
-        self._fname = fname
+    def __init__(self,tilex,tiley,stx,sty):
+        self._stx = stx
+        self._sty = sty
+        self._tile = (tilex,tiley)
         self._data = None
         self._plte = bytearray(512)
         self._decode()
@@ -42,9 +44,12 @@ class PNG_Tile:
             chunk_data = f.read(chunk_length)
             chunk_expected_crc, = struct.unpack('>I', f.read(4))
             return chunk_type, chunk_data
-        now = ticks_ms()
+        #now = ticks_ms()
         # open file and check signature
-        f = open(self._fname,'rb')
+        try:
+            f = open("/sd/tiles/{}/{}.png".format(self._tile[0],self._tile[1]),'rb')
+        except:
+            raise Exception('Tile not in cache')
         PngSignature = b'\x89PNG\r\n\x1a\n'
         if f.read(len(PngSignature)) != PngSignature:
             raise Exception('Invalid PNG Signature')
@@ -78,7 +83,7 @@ class PNG_Tile:
         if not chunk_type == b'IDAT':
             raise Exception('Image Data chunk expected for OSM map tiles')
         self._data = zlib.decompress(data)
-        print("Decode Time(ms): ",ticks_diff(ticks_ms(),now))
+        #print("Decode Time(ms): ",ticks_diff(ticks_ms(),now))
                    
     @micropython.viper        
     def _render(self,w:int,h:int):
@@ -109,14 +114,29 @@ class PNG_Tile:
         self._row =r; self._col=c
         self._x=x; self._y=y
         w,h = self._clip(w,h)
-        now = ticks_ms()
+        #now = ticks_ms()
         self._render(w,h)
         g.updateMod(x,y,x+w-1,y+h-1)
-        g.show()
-        print("Draw Time(ms): ",ticks_diff(ticks_ms(),now))
+        #print("Draw Time(ms): ",ticks_diff(ticks_ms(),now))
+        
+    def draw_chunk(self,x1,y1,x2,y2): # coords in 0..511,0..511 space
+        def in_tile(x,y):
+            return (x>=self._stx and x<self._stx+256 and y>=self._sty and y<self._sty+256)
+        if in_tile(x1,y1):
+            self.draw(x1-self._stx,y1-self._sty,0,0,240,240) # rely on clipping
+        elif in_tile(x2,y1):
+            self.draw(0,y1-self._sty,256-x1,0,240,240)
+        elif in_tile(x1,y2):
+            self.draw(x1-self._stx,0,0,256-y1,240,240)
+        elif in_tile(x2,y2):
+            self.draw(0,0,256-x1,256-y1,240,240)
+        
+            
+        
 
-tile = PNG_Tile("/sd/maps/t0.png")
-g.fill(0)
-tile.draw(0,0,120,120,240,240)
+
+#tile = PNG_Tile("/sd/tiles/32709/21813.png")
+#g.fill(0)
+#tile.draw(0,0,0,0,240,240)
 
 
