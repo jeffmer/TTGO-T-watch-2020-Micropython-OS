@@ -1,7 +1,7 @@
 # adapted from https://pyokagan.name/blog/2019-10-14-png/
 
 from tempos import g
-from graphics import rgb
+from graphics import rgb,BLACK
 import zlib
 import struct
 import micropython
@@ -49,7 +49,7 @@ class PNG_Tile:
         try:
             f = open("/sd/tiles/{}/{}.png".format(self._tile[0],self._tile[1]),'rb')
         except:
-            raise Exception('Tile not in cache')
+            return
         PngSignature = b'\x89PNG\r\n\x1a\n'
         if f.read(len(PngSignature)) != PngSignature:
             raise Exception('Invalid PNG Signature')
@@ -115,8 +115,11 @@ class PNG_Tile:
         self._x=x; self._y=y
         w,h = self._clip(w,h)
         #now = ticks_ms()
-        self._render(w,h)
-        g.updateMod(x,y,x+w-1,y+h-1)
+        if not self._data is None:
+            self._render(w,h)
+            g.updateMod(x,y,x+w-1,y+h-1)
+        else:
+            g.fill_rect(x,y,w,h,BLACK)      
         #print("Draw Time(ms): ",ticks_diff(ticks_ms(),now))
         
     def draw_chunk(self,x1,y1,x2,y2): # coords in 0..511,0..511 space

@@ -9,6 +9,7 @@ from urequests import  request
 import math
 import json
 import os
+from apps.maps import get_location
 
 status = Label(10,80,180,40,roboto24,YELLOW)
 progress = Label(200,80,40,40,roboto24,YELLOW)
@@ -47,13 +48,12 @@ def openfile(tilex,tiley):
     except:
         return None
 
-count=0
 def getTiles():
-    global count
-    loc = json.loads(open("location.json").read())
-    xy = deg2num(loc["lat"],loc["long"],16)
-    for y in range(-3,4):
-        for x in range(-3,4):
+    count=0
+    loc = get_location()
+    xy = deg2num(loc[0],loc[1],16)
+    for y in range(-1,2):
+        for x in range(-1,2):
             tilex = xy[0]+x; tiley = xy[1]+y
             status.update("{}.{}".format(tilex,tiley))
             makedir(tilex)
