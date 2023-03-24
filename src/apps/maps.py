@@ -1,4 +1,5 @@
-from tempos import g,tc,pm,sched, TOUCH_DOWN, TOUCH_UP,BLACK
+from tempos import g,tc,pm,sched, TOUCH_DOWN, TOUCH_UP,BLACK,WHITE
+from fonts import roboto36
 from graphics import RED
 import machine
 from micropython import const
@@ -6,6 +7,13 @@ from pngtile import PNG_Tile
 import math
 import json
 from time import ticks_ms,ticks_diff
+
+def disp_level(ll):
+    global g
+    g.setfont(roboto36)
+    g.setfontalign(-1,-1)
+    g.text(str(ll),180,10,WHITE)
+    g.show()
 
 def deg2num(lat_deg, lon_deg, zoom):
   lat_rad = math.radians(lat_deg)
@@ -114,6 +122,7 @@ def ontouch(tch):
                     z+=2; z = 16 if z>16 else z
                 else:
                     z-=2; z = 4 if z<4 else z
+                disp_level(z)
         if outside(newx) or outside(newy) or not ZOOM == z:
             LOCATION = pixels_to_loc(newx,newy)
             ZOOM=z
