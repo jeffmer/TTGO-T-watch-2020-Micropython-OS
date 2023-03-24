@@ -17,10 +17,10 @@ def init_plte(plte,palette):
 
 class PNG_Tile:
     
-    def __init__(self,tilex,tiley,stx,sty):
+    def __init__(self,tilex,tiley,zoom,stx,sty):
         self._stx = stx
         self._sty = sty
-        self._tile = (tilex,tiley)
+        self._tile = (tilex,tiley,zoom)
         self._data = None
         self._plte = bytearray(512)
         self._decode()
@@ -47,7 +47,7 @@ class PNG_Tile:
         #now = ticks_ms()
         # open file and check signature
         try:
-            f = open("/sd/tiles/{}/{}.png".format(self._tile[0],self._tile[1]),'rb')
+            f = open("/sd/tiles/{}/{}/{}.png".format(self._tile[2],self._tile[0],self._tile[1]),'rb')
         except:
             return
         PngSignature = b'\x89PNG\r\n\x1a\n'
@@ -79,9 +79,7 @@ class PNG_Tile:
             raise Exception('Palette chunk expected')
         self._init_plte(palette)
         # get image data
-        chunk_type,data = chunks[2]
-        if not chunk_type == b'IDAT':
-            raise Exception('Image Data chunk expected for OSM map tiles')
+        data = b''.join(chunk_data for chunk_type, chunk_data in chunks if chunk_type == b'IDAT')
         self._data = zlib.decompress(data)
         #print("Decode Time(ms): ",ticks_diff(ticks_ms(),now))
                    

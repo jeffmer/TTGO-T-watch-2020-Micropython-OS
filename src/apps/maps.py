@@ -1,4 +1,4 @@
-from tempos import g,tc,sched, TOUCH_DOWN, TOUCH_UP,BLACK
+from tempos import g,tc,pm,sched, TOUCH_DOWN, TOUCH_UP,BLACK
 from graphics import RED
 import machine
 from micropython import const
@@ -21,11 +21,14 @@ def num2deg(xtile, ytile, zoom):
   lat_deg = math.degrees(lat_rad)
   return (lat_deg, lon_deg)
 
+ZOOM = 12
+
 def get_loc(loc):
+    global ZOOM
     degtopx = lambda left,right,pos:int(256*(pos-left)/(right-left))
-    tile = deg2num(loc[0],loc[1],16)
-    topleft = num2deg(tile[0],tile[1],16)
-    botright = num2deg(tile[0]+1,tile[1]+1,16)
+    tile = deg2num(loc[0],loc[1],ZOOM)
+    topleft = num2deg(tile[0],tile[1],ZOOM)
+    botright = num2deg(tile[0]+1,tile[1]+1,ZOOM)
     return tile, (degtopx(topleft[1],botright[1],loc[1]),degtopx(topleft[0],botright[0],loc[0]))
 
 home = json.loads(open("location.json").read())
@@ -34,17 +37,19 @@ TILE,PX  = get_loc(LOCATION)
 TILES    = [None,None,None,None]
 
 def get_location():
-    return LOCATION
+    return LOCATION,ZOOM
 
 def pixels_to_loc(x,y):
+    global ZOOM
     pxtodeg = lambda left,right,px : left + px*(right-left)/256
     tilex = TILES[0]._tile[0]
     tiley = TILES[0]._tile[1]
-    origin = num2deg(tilex,tiley,16)
-    botright = num2deg(tilex+1,tiley+1,16)
+    origin = num2deg(tilex,tiley,ZOOM)
+    botright = num2deg(tilex+1,tiley+1,ZOOM)
     return pxtodeg(origin[0],botright[0],y), pxtodeg(origin[1],botright[1],x)
     
 def create_tile(tx,ty,x,y):
+    global ZOOM
     global TILES
     for i in range(4):
         tile = TILES[i]
@@ -54,8 +59,14 @@ def create_tile(tx,ty,x,y):
                 tile._sty =y
                 return tile
     #print(tx,ty)
-    return PNG_Tile(tx,ty,x,y)
+    return PNG_Tile(tx,ty,ZOOM,x,y)
 
+def  refresh_tiles():
+        for i in range(4):
+           tile = TILES[i]
+           if not tile is None and tile._data is None:
+               tile._decode()
+               
 def get_tiles():
     global TILE,PX,TILES
     saved = machine.freq()
@@ -72,6 +83,8 @@ def get_tiles():
             temp[i+2*j] = create_tile(topx+i,topy+j,256*i,256*j)
     TILES = temp
     machine.freq(saved)
+    
+get_tiles()
 
 def drawmap(cx,cy): # draw xy as centre of screen in tile coord space 0..511,0..511
     # return clipped top left corner
@@ -87,16 +100,23 @@ def drawmap(cx,cy): # draw xy as centre of screen in tile coord space 0..511,0..
     g.show()
     
 def ontouch(tch):
-    global x,y,PX,TILE,LOCATION
+    global x,y,PX,TILE,LOCATION,ZOOM
     dr = lambda v:-1 if v<60 else +1 if v>180 else 0
     outside = lambda v: v<0 or v>=512
+    z = ZOOM
     if tch[2] == TOUCH_DOWN:
         x = tch[0]; y = tch[1]
-    elif tch[2] == TOUCH_UP:
-        newx = PX[0]+120*dr(x)
-        newy = PX[1]+120*dr(y)
-        if outside(newx) or outside(newy):
+    elif tch[2] == TOUCH_UP:         
+        newx = PX[0]+60*dr(x)
+        newy = PX[1]+60*dr(y)
+        if (dr(x) ==0 and dr(y)==0): #zoom
+                if x>120:
+                    z+=2; z = 16 if z>16 else z
+                else:
+                    z-=2; z = 4 if z<4 else z
+        if outside(newx) or outside(newy) or not ZOOM == z:
             LOCATION = pixels_to_loc(newx,newy)
+            ZOOM=z
             TILE,PX = get_loc(LOCATION)
             get_tiles()
         else:
@@ -110,10 +130,10 @@ listener = None
 
 def app_init():
     global listener
-    get_tiles()
+    refresh_tiles()
     drawmap(PX[0],PX[1])
     listener = tc.addListener(safecall)
-
+    
 def app_end():
     global listener
     if not listener is None:

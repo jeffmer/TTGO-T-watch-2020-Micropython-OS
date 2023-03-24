@@ -36,30 +36,37 @@ def centre_text(str,font,x,y,c):
     g.setfontalign(0,-1)
     g.text(str,x,y,c)
 
-def makedir(tilex):
+def makelevel(zoom):
     try:
-        os.mkdir("/sd/tiles/{}".format(tilex))
+        os.mkdir("/sd/tiles/{}".format(zoom))
+    except:
+        pass
+
+def makedir(tilex,zoom):
+    try:
+        os.mkdir("/sd/tiles/{}/{}".format(zoom,tilex))
     except:
         pass
         
-def openfile(tilex,tiley):
+def openfile(tilex,tiley,zoom):
     try:
-        return open("/sd/tiles/{}/{}.png".format(tilex,tiley),'xb')
+        return open("/sd/tiles/{}/{}/{}.png".format(zoom,tilex,tiley),'xb')
     except:
         return None
 
 def getTiles():
     count=0
-    loc = get_location()
-    xy = deg2num(loc[0],loc[1],16)
+    loc,zoom = get_location()
+    makelevel(zoom)
+    xy = deg2num(loc[0],loc[1],zoom)
     for y in range(-1,2):
         for x in range(-1,2):
             tilex = xy[0]+x; tiley = xy[1]+y
             status.update("{}.{}".format(tilex,tiley))
-            makedir(tilex)
-            f = openfile(tilex,tiley)
+            makedir(tilex,zoom)
+            f = openfile(tilex,tiley,zoom)
             if not f is None:
-                resp = fetchtile(tilex,tiley,16,f)
+                resp = fetchtile(tilex,tiley,zoom,f)
                 count+=1
                 progress.update(str(count))
             else:
