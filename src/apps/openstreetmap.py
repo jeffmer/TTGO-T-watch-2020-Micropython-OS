@@ -23,6 +23,10 @@ def deg2num(lat_deg, lon_deg, zoom):
 
 def fetchtile(x,y,zoom,f):
     global resp
+    maxz = 2**zoom
+    inrange = lambda v,mx : v >=0 and v<mx
+    if not (inrange(x,maxz) and inrange(y,maxz)):
+            return False
     url = "https://tile.openstreetmap.de/{}/{}/{}.png".format(zoom,x,y)
     resp = request("GET",url)
     if resp.status_code==200:

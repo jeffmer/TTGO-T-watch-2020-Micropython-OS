@@ -1,10 +1,11 @@
 from tempos import g,tc,pm,sched, TOUCH_DOWN, TOUCH_UP,BLACK,WHITE
 from fonts import roboto36
-from graphics import RED
+from graphics import RED,CYAN
 import machine
 from micropython import const
 from pngtile import PNG_Tile
 import math
+import array
 import json
 from time import ticks_ms,ticks_diff
 
@@ -20,7 +21,7 @@ def deg2num(lat_deg, lon_deg, zoom):
   n = 2.0 ** zoom
   xtile = int((lon_deg + 180.0) / 360.0 * n)
   ytile = int((1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * n)
-  return (xtile, ytile)
+  return (xtile, ytile, zoom)
 
 def num2deg(xtile, ytile, zoom):
   n = 2.0 ** zoom
@@ -31,17 +32,16 @@ def num2deg(xtile, ytile, zoom):
 
 ZOOM = 12
 
-def get_loc(loc):
-    global ZOOM
+def get_px(tile,loc):
     degtopx = lambda left,right,pos:int(256*(pos-left)/(right-left))
-    tile = deg2num(loc[0],loc[1],ZOOM)
     topleft = num2deg(tile[0],tile[1],ZOOM)
     botright = num2deg(tile[0]+1,tile[1]+1,ZOOM)
-    return tile, (degtopx(topleft[1],botright[1],loc[1]),degtopx(topleft[0],botright[0],loc[0]))
+    return degtopx(topleft[1],botright[1],loc[1]),degtopx(topleft[0],botright[0],loc[0])
 
 home = json.loads(open("location.json").read())
 LOCATION = (home["lat"],home["long"])
-TILE,PX  = get_loc(LOCATION)
+TILE = deg2num(LOCATION[0],LOCATION[1],ZOOM)
+PX  =  get_px(TILE,LOCATION)
 TILES    = [None,None,None,None]
 
 def get_location():
@@ -94,6 +94,38 @@ def get_tiles():
     
 get_tiles()
 
+class Marker:
+    def __init__(self,loc,col):
+        self._loc = loc
+        self._col = col
+
+    def draw(self,tx,ty):
+        global ZOOM
+        tile = deg2num(self._loc[0],self._loc[1],ZOOM)
+        for j in range(2):
+            for i in range(2):
+                t = TILES[i+j*2]
+                if t._tile == tile:
+                    px = get_px(tile,self._loc)
+                    x = px[0]+i*256-tx
+                    y = px[1]+j*256-ty
+                    if (x>5 and x<234 and y>3 and x<236):
+                        g.ellipse(x,y,5,5,self._col,True)
+                    return
+
+markers = []
+markers.append(Marker(LOCATION,CYAN))
+markers.append(Marker((48.69322,-4.13183),RED))
+markers.append(Marker((38.95074,20.76715),RED))
+
+direction = array.array("h",[315,0,45,270,-1,90,225,180,135])
+def drawArrow(dx,dy):
+    a = direction[4+dx+dy*3]
+    if a>=0:
+        Arrow = array.array("h",[0,-30,10,30,-10,30])
+        g.poly(120,120,Arrow,WHITE,True,a*math.pi/180)
+    g.show()
+
 def drawmap(cx,cy): # draw xy as centre of screen in tile coord space 0..511,0..511
     # return clipped top left corner
     def clip(v):
@@ -105,6 +137,8 @@ def drawmap(cx,cy): # draw xy as centre of screen in tile coord space 0..511,0..
     y = clip(cy)
     for i in range(4):
         TILES[i].draw_chunk(x,y,x+239,y+239)
+    for m in markers:
+        m.draw(x,y)
     g.show()
     
 def ontouch(tch):
@@ -114,19 +148,23 @@ def ontouch(tch):
     z = ZOOM
     if tch[2] == TOUCH_DOWN:
         x = tch[0]; y = tch[1]
-    elif tch[2] == TOUCH_UP:         
-        newx = PX[0]+60*dr(x)
-        newy = PX[1]+60*dr(y)
-        if (dr(x) ==0 and dr(y)==0): #zoom
+    elif tch[2] == TOUCH_UP:
+        dx = dr(x); dy = dr(y)
+        newx = PX[0]+60*dx
+        newy = PX[1]+60*dy
+        if (dx==0 and dy==0): #zoom
                 if x>120:
                     z+=2; z = 16 if z>16 else z
                 else:
-                    z-=2; z = 4 if z<4 else z
+                    z-=2; z = 2 if z<2 else z
                 disp_level(z)
+        else:
+            drawArrow(dx,dy)
         if outside(newx) or outside(newy) or not ZOOM == z:
             LOCATION = pixels_to_loc(newx,newy)
             ZOOM=z
-            TILE,PX = get_loc(LOCATION)
+            TILE = deg2num(LOCATION[0],LOCATION[1],ZOOM)
+            PX = get_px(TILE,LOCATION)
             get_tiles()
         else:
             PX = (newx,newy)
