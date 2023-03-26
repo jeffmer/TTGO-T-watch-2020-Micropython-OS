@@ -1,4 +1,4 @@
-from tempos import g,tc,pm,sched, TOUCH_DOWN, TOUCH_UP,BLACK,WHITE
+from tempos import g,tc,pm,sched,gps,TOUCH_DOWN, TOUCH_UP,BLACK,WHITE
 from fonts import roboto36
 from graphics import RED,CYAN
 import machine
@@ -99,7 +99,10 @@ class Marker:
         self._loc = loc
         self._col = col
 
-    def draw(self,tx,ty):
+    def update(self,loc):
+        self._loc = loc
+
+    def draw(self,tx,ty,doit=True):
         global ZOOM
         tile = deg2num(self._loc[0],self._loc[1],ZOOM)
         for j in range(2):
@@ -110,11 +113,16 @@ class Marker:
                     x = px[0]+i*256-tx
                     y = px[1]+j*256-ty
                     if (x>5 and x<234 and y>3 and x<236):
-                        g.ellipse(x,y,5,5,self._col,True)
-                    return
+                        if doit:
+                            g.ellipse(x,y,5,5,self._col,True)
+                        return True
+                    else:
+                        return False
+        return False
 
+homemark = Marker(LOCATION,CYAN)
 markers = []
-markers.append(Marker(LOCATION,CYAN))
+markers.append(homemark)
 markers.append(Marker((48.69322,-4.13183),RED))
 markers.append(Marker((38.95074,20.76715),RED))
 
@@ -122,7 +130,7 @@ direction = array.array("h",[315,0,45,270,-1,90,225,180,135])
 def drawArrow(dx,dy):
     a = direction[4+dx+dy*3]
     if a>=0:
-        Arrow = array.array("h",[0,-30,10,30,-10,30])
+        Arrow = array.array("h",[0,-30,15,-15,5,-15,5,30,-5,30,-5,-15,-15,-15])
         g.poly(120,120,Arrow,WHITE,True,a*math.pi/180)
     g.show()
 
@@ -173,16 +181,30 @@ def ontouch(tch):
 def safecall(tch):
     sched.setTimeout(10,ontouch,tch) 
 
+def onGPS(p):
+    global homemark,LOCATION,TILE,ZOOM,PX
+    homemark.update(p)
+    if not homemark.draw(PX[0],PX[1],False):
+        LOCATION = p
+        TILE = deg2num(LOCATION[0],LOCATION[1],ZOOM)
+        PX = get_px(TILE,LOCATION)
+        get_tiles()
+    drawmap(PX[0],PX[1])
+
 listener = None
+gpslistener = None
 
 def app_init():
-    global listener
+    global listener,gpslistener
     refresh_tiles()
     drawmap(PX[0],PX[1])
     listener = tc.addListener(safecall)
+    gpslistener = gps.addListener(onGPS)
     
 def app_end():
-    global listener
+    global listener,gpslistener
     if not listener is None:
         tc.removeListener(listener)
+    if not gpslistener is None:
+        gps.removeListener(gpslistener)
     g.fill(BLACK)

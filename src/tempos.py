@@ -183,13 +183,16 @@ class Buzzer:
             
 buzzer = Buzzer(motor)
 
-# sd card
+# sd card && gps
 if VERSION == 2:
     import os
     from machine import SDCard
     sd = SDCard(slot=3, sck=Pin(14), mosi=Pin(15), miso=Pin(4),cs=Pin(13))
     vfs = os.VfsFat(sd)
     os.mount(vfs, "/sd")
+
+    from drivers.l67k import L67K
+    gps = L67K() 
 
 
 
