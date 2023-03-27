@@ -26,6 +26,11 @@ An application module is installed by copying its file into one of three folders
 
 ![](images/small/calculator.png)  ![](images/small/weather.png) ![](images/small/puzzle.png)
 
+### V2 only
+
+![](images/small/position.png)  ![](images/small/osmtiles.png) ![](images/small/maps.png)
+
+
 
 ### Navigation between Application Modules
 
