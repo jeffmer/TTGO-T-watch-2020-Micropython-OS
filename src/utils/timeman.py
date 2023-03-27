@@ -5,21 +5,27 @@ from fonts import roboto24,roboto36
 from button import Button,RoundButton,ButtonMan
 from wifi import do_connected_action
 import ntptime
-from widgets import ValueDisplay, Label
+from widgets import ValueDisplay, Label,SwitchPanel
+
 
 # time zone adjustment
+dst = False
 
 def zadjust(incr):
     settings.timezone += incr
     return settings.timezone
 
+def changedst(v):
+    settings.dst = v
+
 buttons = ButtonMan()
-zone = ValueDisplay("Time Zone",15,False,1,zadjust,buttons)
+zone = ValueDisplay("Time Zone",2,False,1,zadjust,buttons)
+dst = SwitchPanel("Summer Time",102,settings.dst,changedst,buttons)
 
 # time synchronisation
 
-status = Label(20,200,160,40,roboto24,WHITE)
-progress = Label(200,200,40,40,roboto24,WHITE)
+status = Label(20,200,160,40,roboto24,YELLOW)
+progress = Label(200,200,40,40,roboto24,YELLOW)
 
 def dosync():
     ntptime.settime()
@@ -30,20 +36,18 @@ def button_action():
     do_connected_action(dosync,status,progress)
 
 
-start = RoundButton("Sync",80,160,80,40,theme=ValueDisplay.theme)
+start = Button("Sync with NTP",20,160,200,40,theme=ValueDisplay.theme)
 buttons.add(start)
 start.callback(button_action)
 
 def app_init():
     zone.drawInit(settings.timezone)
-    g.setfont(roboto36)
-    g.setfontalign(0,-1)
-    g.text("Sync Time",120,115,WHITE)
     status.update('Idle',False)
     progress.update('',False)
     buttons.start()
     
 def app_end():
+    settings.save()
     buttons.stop()
     g.fill(BLACK)
     set_local_time()

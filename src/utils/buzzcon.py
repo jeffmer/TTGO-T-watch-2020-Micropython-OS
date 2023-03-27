@@ -20,5 +20,6 @@ def app_init():
     buttons.start()
     
 def app_end():
+    settings.save()
     buttons.stop()
     g.fill(BLACK)

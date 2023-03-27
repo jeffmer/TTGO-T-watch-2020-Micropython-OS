@@ -1,4 +1,4 @@
-from tempos import g
+from tempos import g,settings
 from graphics import WHITE,BLACK,YELLOW
 from fonts import roboto18,roboto24,roboto36
 from button import Button,ButtonMan
@@ -35,7 +35,7 @@ def deg_to_dir(d):
     return dirs[dr] 
 
 def secs_to_time(secs,zone):
-    lsecs = secs + zone*3600 - 946684800
+    lsecs = secs + zone*3600 + (3600 if settings.dst else 0) - 946684800
     loctime =   time.gmtime(lsecs)
     return '{:2d}:{:02}'.format(loctime[3],loctime[4])
 
