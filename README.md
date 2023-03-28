@@ -2,6 +2,8 @@
 
 This repository is an implementation entirely in Micropython of a supporting operating system and applications for the Lilygo T-watch 2020. It has been tested for V1 and V2 only.
 
+Video of watch in operation https://youtu.be/TL3tCaUthRQ
+
 ## Application Modules
 
 Applications are simply micropython modules that provide an `app_init()`and an `app_end()` method.
