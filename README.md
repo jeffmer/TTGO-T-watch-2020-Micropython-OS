@@ -40,7 +40,7 @@ Application modules in each of the above folders are organised into a ring struc
  
 ### Writing an Application Module
 
-Listed below is the micropython module that implements the clock face depicted above - second row, far right.  Application modules are event driven - in this case a periodic event every 1000ms created by the call to the `setInterval` method provided by the scheduling object `sched` imported from the central system `tempos` module. In response to a swipe action, the system invokes the `app_end` function of the current application module and then the `app_init` function of the destination module. Consequently, here, `app_init` draws the clock face and initiates a periodic event to redraw the face every second. `app_init` terminates this event and clears the screen. Graphics operation are provided by the imported graphics instance `g`. 
+Listed below is the micropython module that implements the clock face depicted above - second row, far right.  Application modules are event driven - in this case a periodic event every 1000ms created by the call to the `setInterval` method provided by the scheduling object `sched` imported from the central system `tempos` module. In response to a swipe action, the system invokes the `app_end` function of the current application module and then the `app_init` function of the destination module. Consequently, here, `app_init` draws the clock face and initiates a periodic event to redraw the face every second. `app_end` terminates this event and clears the screen. Graphics operation are provided by the imported graphics instance `g`. 
 
 
 ```
