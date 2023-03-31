@@ -8,7 +8,9 @@ from widgets import Label
 from wifi import do_connected_action
 from urequests import  request
 from config import OWP_KEY
-import json
+from config import VERSION
+if VERSION == 2:
+    from apps.maps import get_location 
 
 status = Label(0,200,100,30,roboto18,YELLOW)
 progress = Label(110,200,30,30,roboto18,YELLOW)
@@ -79,8 +81,12 @@ def drawDisplay():
     g.show()
 
 def getupdate():
-    loc = json.loads(open("location.json").read())
-    url = "https://api.openweathermap.org/data/2.5/weather?lat={:.3f}&lon={:.3f}&appid={}".format(loc["lat"],loc["long"],OWP_KEY)
+    if VERSION == 2:
+        loc,_ = get_location()
+    else:
+        home = json.loads(open("location.json").read())
+        loc = (home["lat"],home["long"])
+    url = "https://api.openweathermap.org/data/2.5/weather?lat={:.3f}&lon={:.3f}&appid={}".format(loc[0],loc[1],OWP_KEY)
     r= request("GET",url)
     dd = r.json()
     #print(dd)
