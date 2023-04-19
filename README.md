@@ -148,10 +148,15 @@ The T-watch has 4 megabytes of SPIRAM. To exploit this to make the watch respons
 
 2. Edit the `config.py` file setting  the  version of your T-watch 1 or 2, wifi network information open weather map key.
 
-3. Compile all the micropython file to bytecode by executing `compile.sh` in the `src` directory.
+3. Edit `location.json` with your location - used by the weather app.
 
-4. Copy all the .mpy bytecode and .png imagefile to the T-watch by executing `install.sh`
+3. Compile all the micropython file to bytecode by executing `compile.sh` in the `src` directory. You will need to edit this file to point to your local copy of the cross-compiler `mpy-cross`  
+
+4. Copy all the .mpy bytecode and .png imagefile to the T-watch by executing `install.sh` The command file assumes your watch is connected to `/dev/ttyUSB0`. If this is not the case edit the file and remove the u0 parameter which should then let `mpremote` find the port automatically or specify your port explicitly to `mpremote` (see `mpremote help`).  
+
 5. After executing the installation script, the watch should start loading as a `boot.py` file is copied to the T-watch. This contains the line `import loader` which starts the watch software.
+
+If nothing happens on reboot a good first step in debugging is to comment out the line `import loader` in `boot.py` and reset the watch. Then, using `REPL` type `import tempos` which should load all the drivers and - after a delay - display `Loading ...` on the watch screen. 
 
 
 

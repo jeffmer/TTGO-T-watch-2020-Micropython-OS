@@ -23,7 +23,10 @@ done
 
 echo "Write Boot file" 
 mpremote u0 fs rm :boot.mpy
-#mpremote u0 fs cp boot.py :boot.py
+mpremote u0 fs cp boot.py :boot.py
+
+echo "Write Location file" 
+mpremote u0 fs cp location.json :location.json
 
 echo "Reset"
 mpremote u0 soft-reset
