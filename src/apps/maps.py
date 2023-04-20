@@ -152,7 +152,7 @@ def drawmap(cx,cy): # draw xy as centre of screen in tile coord space 0..511,0..
 def ontouch(tch):
     global x,y,PX,TILE,LOCATION,ZOOM
     dr = lambda v:-1 if v<60 else +1 if v>180 else 0
-    outside = lambda v: v<0 or v>=512
+    outside = lambda v: v-120<0 or v+120>=512
     z = ZOOM
     if tch[2] == TOUCH_DOWN:
         x = tch[0]; y = tch[1]
