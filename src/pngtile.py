@@ -52,7 +52,7 @@ class PNG_Tile:
             return
         PngSignature = b'\x89PNG\r\n\x1a\n'
         if f.read(len(PngSignature)) != PngSignature:
-            raise Exception('Invalid PNG Signature')
+            raise Exception('Invalid PNG Signature {}/{}/{}.png'.format(self._tile[2],self._tile[0],self._tile[1]))
         chunks = []
         while True:
             chunk_type, chunk_data = read_chunk(f)

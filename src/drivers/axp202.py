@@ -152,7 +152,9 @@ class AXP202(Event):
             self.setPower(LD02,0)
             if VERSION ==2:
                 self.setGPIO0(False)  # disable motor driver
+            self.setDCDC3Voltage(2700)
         else:
+            self.setDCDC3Voltage(3300)
             self.adc1Enable(0xCD,True)
             self.setPower(LD02,1)
             if VERSION ==2: # reset touch by pulsing EXTEN
