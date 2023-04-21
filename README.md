@@ -158,7 +158,14 @@ The T-watch has 4 megabytes of SPIRAM. To exploit this to make the watch respons
 
 If nothing happens on reboot a good first step in debugging is to comment out the line `import loader` in `boot.py` and reset the watch. Then, using `REPL` type `import tempos` which should load all the drivers and - after a delay - display `Loading ...` on the watch screen. 
 
+### Battery life
 
+A recent update  reduces the voltage supply from 3.3V to 2.7V  during sleep, the light sleep current is now measured at:
+
+* V1 = 2.0 ma
+* V2 = 1.3 ma
+
+which with light use should give two or three days battery life for V1 watches and three or four days with V2 watches. (The V1 watch has no way to reset the touch driver chip and so it cannot be put into its power saving hibernate mode during light sleep)
 
 
 
