@@ -104,7 +104,7 @@ class DRV2605:
         self.setMode(5) # rtp playback
         self.setRTP(0x7F if v else 0x00) # max buzz strength
         if not v:
-            self.setMode(0x85) # standby
+            self.setMode(0x40) # standby
 
 '''
 from machine import Pin,I2C
