@@ -4,7 +4,7 @@ from time import sleep_ms
 from bma_config import bma_blob
 from machine import Pin,SLEEP
 from scheduler import Event
-from config import VERSION  
+from config import VERSION
 
 @micropython.viper
 def conv(lo:int,hi:int)->int:
@@ -12,7 +12,7 @@ def conv(lo:int,hi:int)->int:
     return ((i & 0x7FFF) - (i & 0x8000))>>4
 
 class BMA423(Event):
-    
+
     def __init__(self,i2c,ap):
         super().__init__()
         self.i2c = i2c
@@ -37,9 +37,9 @@ class BMA423(Event):
         #print("status ",self.readBytes(0x2A,1)[0])
         self.writeByte(0x7D, 0x04)
         self.writeByte(0x41, 0x00) # 2g range
-        self.writeByte(0x40, 0x17) 
+        self.writeByte(0x40, 0x17)
         self.writeByte(0x7C, 0x03)
-        
+
     def writeByte(self,a,d):
         self.temp[0] = a
         self.temp[1] = d
@@ -61,7 +61,7 @@ class BMA423(Event):
         mv = memoryview(res)
         for i in range(0,len,16):
             self.writeByte(0x5B, (offset+(i//2)) & 0x0F)
-            self.writeByte(0x5C, (offset+(i//2)) >> 4)  
+            self.writeByte(0x5C, (offset+(i//2)) >> 4)
             self.i2c.writeto(0x19,b'\x5E')
             self.i2c.readfrom_into(0x19,mv[i:(i+16)])
         self.writeByte(0x7C, 0x03) # enable sleep mode
@@ -73,9 +73,9 @@ class BMA423(Event):
         mv = memoryview(data)
         for i in range(0,len(data),16):
             self.writeByte(0x5B, (offset+(i//2)) & 0x0F)
-            self.writeByte(0x5C, (offset+(i//2)) >> 4)  
-            self.i2c.writevto(0x19,(b'\x5E',mv[i:(i+16)]))   
-        self.writeByte(0x7C, 0x03) # enable sleep mode     
+            self.writeByte(0x5C, (offset+(i//2)) >> 4)
+            self.i2c.writevto(0x19,(b'\x5E',mv[i:(i+16)]))
+        self.writeByte(0x7C, 0x03) # enable sleep mode
 
     def isr(self,p):
         self.irq_signal(self.readBytes(0x1C,1))
@@ -87,7 +87,7 @@ class BMA423(Event):
         feature[0x3E] = 0x01 # double tap enable + sensitivity == 0 high
         feature[0x40] = feature[0x40] | 0x01 # wrist wear wakeup
         feature[0x45] = 1 # z_sign =1 invert z axis
-        if VERSION ==1:
+        if VERSION ==1 or VERSION == 3:
             feature[0x44] = 0x8A # z =2, y_sign =0, y=1, x_sign=1 x =0
         elif VERSION == 2:
             feature[0x44] = 0x81 # z =2, y_sign =0, y=0, x_sign=0 x =1
@@ -95,7 +95,7 @@ class BMA423(Event):
         self.ap.irq(self.isr,Pin.IRQ_LOW_LEVEL,wake=SLEEP)
         self.readBytes(0x1C,1) # clear any previous motion interrupt
         self.writeByte(0x56,0x18) #  map wrist and double tap interrupt to INT 1
-        self.writeByte(0x53,0x08) # enable INT 1 output 
+        self.writeByte(0x53,0x08) # enable INT 1 output
 
     def stepInit(self):
         feature = self.configRead(0x46,256)

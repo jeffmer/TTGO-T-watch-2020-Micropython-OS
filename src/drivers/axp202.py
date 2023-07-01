@@ -33,7 +33,7 @@ class AXP202(Event):
         self.one[0] = a
         self.i2c.writeto(0x35,self.one)
         return self.i2c.readfrom(0x35,1)[0]
-    
+
     def clearIRQ(self):
         self.i2c.writeto(0x35,b'\x48')
         status = self.i2c.readfrom(0x35,5)
@@ -51,7 +51,7 @@ class AXP202(Event):
         self.irq_signal(self.clearIRQ())
         p.enable()
 
-        
+
     def setPower(self,bus,state):
         buf = self.readByte(0x12)
         data = (buf | 0x01<<bus) if state else (buf & ~(0x01<<bus))
@@ -116,7 +116,7 @@ class AXP202(Event):
         hv = self.readByte(0x7A)
         lv = self.readByte(0x7B)
         return ((hv << 4) | (lv & 0x0F))//2
-  
+
     def batDisChargeA(self):
         hv = self.readByte(0x7C)
         lv = self.readByte(0x7D)
@@ -140,6 +140,9 @@ class AXP202(Event):
         if VERSION==1:
             self.setPower(EXTEN,0)
             self.setPower(LD03,0)
+        if VERSION==3:
+            self.setPower(EXTEN,0)
+            self.setPower(LD04,0)
         else:
             self.setPower(EXTEN,1) # touch reset
             self.setPower(LD03,1)   #tft/touch

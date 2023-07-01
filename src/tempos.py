@@ -86,9 +86,9 @@ class Settings():
     def dst(self,v):
         self._set["dst"] =  v
         self._change = True
-    
 
-    
+
+
 settings = Settings()
 
 # power management
@@ -100,7 +100,17 @@ pm.enableIRQ(0x44,5) #  PEK press falling edge
 
 # lcd display
 spi = SPI(2, 32000000, sck=Pin(18), mosi=Pin(19), miso=Pin(23))
-g = ST7789(spi, dc=Pin(27,Pin.OUT), cs=Pin(5,Pin.OUT),bl=Pin(25 if VERSION == 2 else 12))
+
+bl_pin = None
+
+if VERSION == 1:
+    bl_pin = 12
+elif VERSION == 2:
+    bl_pin = 25
+elif VERSION == 3:
+    bl_pin = 15
+
+g = ST7789(spi, dc=Pin(27,Pin.OUT), cs=Pin(5,Pin.OUT),bl=Pin(bl_pin))
 g.fill(BLACK)
 g.setcolor(WHITE,BLACK)
 g.setfont(roboto18)
@@ -114,7 +124,7 @@ prtc = PCF8563(I2C1,rtcp) # GM time persistent clock
 rtc = RTC()          # local clock
 
 def set_local_time():
-    dt = prtc.datetime() 
+    dt = prtc.datetime()
     epoch_secs = time.mktime((dt[0],dt[1],dt[2],dt[4],dt[5],dt[6],dt[3],0))
     tm = time.gmtime(epoch_secs + settings.timezone*3600 + (3600 if settings.dst else 0) )
     rtc.datetime((tm[0], tm[1], tm[2], tm[6], tm[3], tm[4], tm[5], 0))
@@ -141,15 +151,15 @@ ac = BMA423(I2C1,ap)
 ac.stepInit()
 ac.wristInit()
 
-if VERSION == 1:
+if VERSION == 1 or VERSION == 3:
     _motorpin = Pin(4,Pin.OUT)
     def motor(v):
         _motorpin.value(v)
 elif VERSION == 2:
     drv = DRV2605(I2C1)
     def motor(v):
-        drv.buzz(v) 
-    
+        drv.buzz(v)
+
 def dolightsleep(e):
     global count
     count-=1
@@ -157,13 +167,13 @@ def dolightsleep(e):
         return
     g.sleep()
     g.bright(0)
-    if VERSION ==1:
+    if VERSION ==1 or VERSION == 3:
         motor(False) # make sure motor is off
     if VERSION==2:
         tc.hibernate()
     pm.lowpower(True)
     sleep_ms(100)
-    lightsleep() 
+    lightsleep()
     sleep_ms(100)
     pm.lowpower(False)
     if VERSION==2:
@@ -173,7 +183,7 @@ def dolightsleep(e):
     g.wake()
     g.bright(settings.brightness)
 
-sched = Scheduler()  
+sched = Scheduler()
 dosleep = sched.setInterval(1000,dolightsleep,sched)
 
 # buzzer
@@ -184,27 +194,27 @@ class Buzzer:
         self._ticker = None
         self._period = period
         self._duty = duty
-        
+
     def buzz(self):
         self._motor(True)
         sched.setTimeout(self._period*self._duty//100,self._motor,False)
 
     def click(self):
         if (settings.clicking):
-            if VERSION==1:
+            if VERSION==1 or VERSION == 3:
                 self._motor(True)
                 self._motor(False)
             elif VERSION==2:
                 drv.click()
-        
+
     def start(self):
         if (settings.buzzing):
             self._ticker = sched.setInterval(self._period,self.buzz)
-        
+
     def stop(self):
         if not (self._ticker is None):
             sched.clearInterval(self._ticker)
-            
+
 buzzer = Buzzer(motor)
 
 # sd card && gps
@@ -216,7 +226,7 @@ if VERSION == 2:
     os.mount(vfs, "/sd")
 
     from drivers.l67k import L67K
-    gps = L67K() 
+    gps = L67K()
 
 
-
+# TODO: Support PCM mic for VERSION == 3
