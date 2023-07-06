@@ -1,4 +1,4 @@
-from tempos import g,settings
+from tempos import g,settings,json
 from graphics import WHITE,BLACK,YELLOW
 from fonts import roboto18,roboto24,roboto36
 from button import Button,ButtonMan
