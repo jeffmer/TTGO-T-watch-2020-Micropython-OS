@@ -14,6 +14,7 @@ Minutes = 0
 AlarmState = 0  # 0 = Clear, 1 = Set, 2 = Alarmed
 colors = [BLACK, GREEN, RED]
 
+
 # Note : Alarms are saved as GMT timezone and displayed in local timezone
 
 

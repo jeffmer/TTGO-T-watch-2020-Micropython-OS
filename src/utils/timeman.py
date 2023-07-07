@@ -7,7 +7,6 @@ from wifi import do_connected_action
 import ntptime
 from widgets import ValueDisplay, Label, SwitchPanel
 
-
 # time zone adjustment
 dst = False
 

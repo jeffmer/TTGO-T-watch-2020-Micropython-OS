@@ -109,7 +109,7 @@ pmp = Pin(35, Pin.IN)
 I2C1 = I2C(1, scl=Pin(22), sda=Pin(21), freq=400000)
 pm = AXP202(I2C1, pmp)
 pm.init()
-pm.enableIRQ(0x44, 5)  #  PEK press falling edge
+pm.enableIRQ(0x44, 5)  # PEK press falling edge
 
 # lcd display
 spi = SPI(2, 32000000, sck=Pin(18), mosi=Pin(19), miso=Pin(23))
@@ -147,7 +147,6 @@ def set_local_time():
 
 
 set_local_time()
-
 
 # touch controller
 I2C0 = I2C(0, scl=Pin(32), sda=Pin(23), freq=400000)
@@ -210,6 +209,7 @@ def dolightsleep(e):
 sched = Scheduler()
 dosleep = sched.setInterval(1000, dolightsleep, sched)
 
+
 # buzzer
 
 
@@ -255,6 +255,5 @@ if VERSION == 2:
     from drivers.l67k import L67K
 
     gps = L67K()
-
 
 # TODO: Support PCM mic for VERSION == 3

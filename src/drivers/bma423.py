@@ -95,7 +95,7 @@ class BMA423(Event):
         self.configWrite(feature, 256)
         self.ap.irq(self.isr, Pin.IRQ_LOW_LEVEL, wake=SLEEP)
         self.readBytes(0x1C, 1)  # clear any previous motion interrupt
-        self.writeByte(0x56, 0x18)  #  map wrist and double tap interrupt to INT 1
+        self.writeByte(0x56, 0x18)  # map wrist and double tap interrupt to INT 1
         self.writeByte(0x53, 0x08)  # enable INT 1 output
 
     def stepInit(self):

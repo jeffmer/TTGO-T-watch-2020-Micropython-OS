@@ -34,6 +34,7 @@ import sys
 import os
 import freetype
 
+
 # UTILITIES FOR WRITING PYTHON SOURCECODE TO A FILE
 
 # ByteWriter takes as input a variable name and data values and writes
@@ -361,7 +362,7 @@ STR02 = """_mvfont = memoryview(_font)
 def _chr_addr(ordch):
     offset = 2 * (ordch - {})
     return int.from_bytes(_index[offset:offset + 2], 'little')
-    
+
 def get_width(s):
     width = 0
     for ch in s:
@@ -378,7 +379,7 @@ def get_ch(ch):
     width = int.from_bytes(_font[offset:offset + 2], 'little')
     next_offs = _chr_addr(ordch +1)
     return _mvfont[offset + 2:next_offs], width
- 
+
 """
 
 
