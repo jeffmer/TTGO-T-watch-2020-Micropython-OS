@@ -931,6 +931,7 @@ class pngfilters:
             for j in range(3):
                 result[i * 4 + j] = row[i * 3 + j]
 
+
 def getPNG(fn, key):
     saved = machine.freq()
     machine.freq(240000000)

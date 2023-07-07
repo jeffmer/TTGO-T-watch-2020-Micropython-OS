@@ -40,6 +40,7 @@ ZOOM = 12
 def get_px(tile, loc):
     def degtopx(left, right, pos):
         return int(256 * (pos - left) / (right - left))
+
     topleft = num2deg(tile[0], tile[1], ZOOM)
     botright = num2deg(tile[0] + 1, tile[1] + 1, ZOOM)
     return degtopx(topleft[1], botright[1], loc[1]), degtopx(
@@ -60,8 +61,10 @@ def get_location():
 
 def pixels_to_loc(x, y):
     global ZOOM
+
     def pxtodeg(left, right, px):
         return left + px * (right - left) / 256
+
     tilex = TILES[0]._tile[0]
     tiley = TILES[0]._tile[1]
     origin = num2deg(tilex, tiley, ZOOM)
@@ -175,10 +178,13 @@ def drawmap(cx, cy):  # draw xy as centre of screen in tile coord space 0..511,0
 
 def ontouch(tch):
     global x, y, PX, TILE, LOCATION, ZOOM
+
     def dr(v):
         return -1 if v < 60 else +1 if v > 180 else 0
+
     def outside(v):
         return v - 120 < 0 or v + 120 >= 512
+
     z = ZOOM
     if tch[2] == TOUCH_DOWN:
         x = tch[0]
