@@ -135,5 +135,5 @@ class SwitchPanel(Button):
         self.pressed = False
         self._state = not self._state
         self.draw()
-        if not self._change is None:
+        if self._change is not None:
             self._change(self._state)

@@ -35,7 +35,7 @@ class ST7789(graphics.Graphics):
         gc.collect()
         self.buf = bytearray(self.height * self.width * 2)
         super().__init__(self.buf, self.width, self.height, mode)
-        if not rst is None:
+        if rst is not None:
             self._rst(0)
             sleep_ms(10)
             self._rst(1)

@@ -1,6 +1,9 @@
 from micropython import const
 from tempos import tc, prtc, sched, SWIPE_RIGHT, SWIPE_LEFT, SWIPE_DOWN, SWIPE_UP
-import os, apps, utils, clocks
+import os
+import apps
+import utils
+import clocks
 
 
 class Ring:

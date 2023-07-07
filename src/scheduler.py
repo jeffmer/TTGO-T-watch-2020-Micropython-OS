@@ -30,7 +30,7 @@ class Event:
 
     def removeListener(self, e):
         i = 0
-        while i < len(self.queue) and not e is self.queue[i]:
+        while i < len(self.queue) and e is not self.queue[i]:
             i = i + 1
         if i < len(self.queue):
             self.queue.pop(i)
@@ -49,7 +49,7 @@ class Scheduler:
 
     def _remove(self, e):
         i = 0
-        while i < len(self.queue) and not e is self.queue[i]:
+        while i < len(self.queue) and e is not self.queue[i]:
             i = i + 1
         if i < len(self.queue):
             self.queue.pop(i)
@@ -82,7 +82,7 @@ class Scheduler:
 
     def schedule(self):
         self._schedule(None)
-        if not self.next is None:
+        if self.next is not None:
             try:
                 self.next.action(*self.next.arg)
             except Exception as e:

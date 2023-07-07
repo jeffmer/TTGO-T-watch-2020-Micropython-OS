@@ -184,7 +184,7 @@ def actPause():
     global _ACTIVE, touch
     loader.setapplock(False)
     _ACTIVE = False
-    if not touch is None:
+    if touch is not None:
         tc.removeListener(touch)
         touch = None
 

@@ -19,7 +19,7 @@ class Button:
         self._theme = (
             Theme(WHITE, BLUE, GREEN, WHITE, roboto24) if theme is None else theme
         )
-        if not font is None:
+        if font is not None:
             self._theme._font = font
         self.x = x
         self.y = y
@@ -56,7 +56,7 @@ class Button:
     def release(self):
         self.pressed = False
         self.draw()
-        if not self.cb is None:
+        if self.cb is not None:
             self.cb(*self.args)
 
     def istouched(self, x, y):
@@ -126,7 +126,7 @@ class ButtonMan:
         self.listener = tc.addListener(self._safecall)
 
     def stop(self):
-        if not self.listener is None:
+        if self.listener is not None:
             tc.removeListener(self.listener)
 
     def add(self, b):
@@ -145,7 +145,7 @@ class ButtonMan:
                     self.pressed = b
                     b.press()
                     self.clicker()
-        elif not self.pressed is None:
+        elif self.pressed is not None:
             if tch[2] == TOUCH_UP:
                 self.pressed.release()
                 self.pressed = None

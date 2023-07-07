@@ -237,7 +237,7 @@ class Buzzer:
             self._ticker = sched.setInterval(self._period, self.buzz)
 
     def stop(self):
-        if not (self._ticker is None):
+        if self._ticker is not None:
             sched.clearInterval(self._ticker)
 
 

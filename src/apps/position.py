@@ -23,7 +23,7 @@ def drawPos(sh=True):
     global gps, saved, updating
     g.fill_rect(0, 50, 240, 80, BLACK)
     g.setfont(roboto24)
-    if not gps._pos is None:
+    if gps._pos is not None:
         lat = gps._pos[0]
         lng = gps._pos[1]
         col = YELLOW
@@ -63,7 +63,7 @@ def dosave():
     global saved
     saved = True
     drawPos()
-    if not gps._pos is None:
+    if gps._pos is not None:
         s = json.dumps({"lat": gps._pos[0], "long": gps._pos[1]})
         with open("location.json", "w") as f:
             f.write(s)
@@ -99,5 +99,5 @@ def app_end():
     global gpslistener
     buttons.stop()
     g.fill(BLACK)
-    if not listener is None:
+    if listener is not None:
         gps.removeListener(listener)

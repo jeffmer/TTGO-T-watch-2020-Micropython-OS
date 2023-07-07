@@ -38,7 +38,8 @@ ZOOM = 12
 
 
 def get_px(tile, loc):
-    degtopx = lambda left, right, pos: int(256 * (pos - left) / (right - left))
+    def degtopx(left, right, pos):
+        return int(256 * (pos - left) / (right - left))
     topleft = num2deg(tile[0], tile[1], ZOOM)
     botright = num2deg(tile[0] + 1, tile[1] + 1, ZOOM)
     return degtopx(topleft[1], botright[1], loc[1]), degtopx(
@@ -59,7 +60,8 @@ def get_location():
 
 def pixels_to_loc(x, y):
     global ZOOM
-    pxtodeg = lambda left, right, px: left + px * (right - left) / 256
+    def pxtodeg(left, right, px):
+        return left + px * (right - left) / 256
     tilex = TILES[0]._tile[0]
     tiley = TILES[0]._tile[1]
     origin = num2deg(tilex, tiley, ZOOM)
@@ -72,7 +74,7 @@ def create_tile(tx, ty, x, y):
     global TILES
     for i in range(4):
         tile = TILES[i]
-        if not tile is None and not tile._data is None:
+        if tile is not None and tile._data is not None:
             if tile._tile[0] == tx and tile._tile[1] == ty:
                 tile._stx = x
                 tile._sty = y
@@ -84,7 +86,7 @@ def create_tile(tx, ty, x, y):
 def refresh_tiles():
     for i in range(4):
         tile = TILES[i]
-        if not tile is None and tile._data is None:
+        if tile is not None and tile._data is None:
             tile._decode()
 
 
@@ -173,8 +175,10 @@ def drawmap(cx, cy):  # draw xy as centre of screen in tile coord space 0..511,0
 
 def ontouch(tch):
     global x, y, PX, TILE, LOCATION, ZOOM
-    dr = lambda v: -1 if v < 60 else +1 if v > 180 else 0
-    outside = lambda v: v - 120 < 0 or v + 120 >= 512
+    def dr(v):
+        return -1 if v < 60 else +1 if v > 180 else 0
+    def outside(v):
+        return v - 120 < 0 or v + 120 >= 512
     z = ZOOM
     if tch[2] == TOUCH_DOWN:
         x = tch[0]
@@ -234,8 +238,8 @@ def app_init():
 
 def app_end():
     global listener, gpslistener
-    if not listener is None:
+    if listener is not None:
         tc.removeListener(listener)
-    if not gpslistener is None:
+    if gpslistener is not None:
         gps.removeListener(gpslistener)
     g.fill(BLACK)

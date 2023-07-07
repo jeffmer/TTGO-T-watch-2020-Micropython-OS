@@ -118,7 +118,7 @@ class Graphics(framebuf.FrameBuffer):
         super().ellipse(x, y, xr, yr, c if c is not None else self.fgcolor, f, m)
 
     def poly(self, x, y, coord, c=None, f=False, theta=None):
-        if not theta is None:
+        if theta is not None:
             coord = rotate(coord, theta)
         for i in range(0, len(coord), 2):
             x1, y1 = x + coord[i], y + coord[i + 1]

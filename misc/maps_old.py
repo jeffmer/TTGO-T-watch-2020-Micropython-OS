@@ -92,6 +92,6 @@ def app_init():
 
 def app_end():
     global listener
-    if not listener is None:
+    if listener is not None:
         tc.removeListener(listener)
     g.fill(BLACK)

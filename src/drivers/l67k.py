@@ -37,10 +37,10 @@ class L67K(Event):
 
     def _getandparsebuf(self):
         nb = self.uart.readinto(self._buf)
-        if not nb is None:
+        if nb is not None:
             for i in range(0, nb):
                 stat = self.parser.update(chr(self._buf[i]))
-                if not stat is None:
+                if stat is not None:
                     self._fix = self.parser.fix_stat
                     stat = None
                     if self._fix > 0:
@@ -65,12 +65,12 @@ class L67K(Event):
 
     def cancel_update(self):
         self.power(False)
-        if not self._timer is None:
+        if self._timer is not None:
             sched.clearInterval(self._timer)
             self._timer = None
 
     def updating(self):
-        return not self._timer is None
+        return self._timer is not None
 
 
 """

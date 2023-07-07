@@ -49,6 +49,11 @@ except ImportError:
 
 from array import array
 
+from tempos import g
+from graphics import rgb
+import framebuf
+import machine
+
 # from functools import reduce
 
 
@@ -925,13 +930,6 @@ class pngfilters:
         for i in range(len(row) // 3):
             for j in range(3):
                 result[i * 4 + j] = row[i * 3 + j]
-
-
-from tempos import g
-from graphics import rgb
-import framebuf
-import machine
-
 
 def getPNG(fn, key):
     saved = machine.freq()

@@ -139,7 +139,7 @@ class PNG_Tile:
         self._y = y
         w, h = self._clip(w, h)
         # now = ticks_ms()
-        if not self._data is None:
+        if self._data is not None:
             if len(self._data) > 1:
                 self._render(w, h)
                 g.updateMod(x, y, x + w - 1, y + h - 1)
