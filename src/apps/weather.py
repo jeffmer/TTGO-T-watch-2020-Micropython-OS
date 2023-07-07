@@ -1,4 +1,4 @@
-from tempos import g,settings
+from tempos import g,settings,json
 from graphics import WHITE,BLACK,YELLOW
 from fonts import roboto18,roboto24,roboto36
 from button import Button,ButtonMan
@@ -87,12 +87,17 @@ def getupdate():
         home = json.loads(open("location.json").read())
         loc = (home["lat"],home["long"])
     url = "https://api.openweathermap.org/data/2.5/weather?lat={:.3f}&lon={:.3f}&appid={}".format(loc[0],loc[1],OWP_KEY)
-    r= request("GET",url)
+    r = request("GET",url)
     dd = r.json()
-    #print(dd)
-    if (dd['cod']==200):
-        updateDisplay(dd)
-        drawDisplay()
+    # 401 code: invalid api key
+    if dd['cod']==200:
+        try:
+            updateDisplay(dd)
+            drawDisplay()
+        except Exception as err:
+            status.update("{}:{}".format(dd['cod'], str(err)))
+    else:
+        print(dd)
 
 def get_weather():
     global status,progress

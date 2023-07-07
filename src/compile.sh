@@ -1,11 +1,13 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
 # Compile all py to mpy
 
-CROSS="/home/jeff/pico/micropython/mpy-cross/build/mpy-cross -march=xtensawin"
-dir=`pwd`
+CROSS="mpy-cross -march=xtensawin"
+dir=$(dirname "$0")
 
-for i in $dir/*.py $dir/clocks/*.py $dir/apps/*.py $dir/drivers/*.py $dir/utils/*.py $dir/fonts/*.py 
+for i in "$dir"/*.py "$dir"/clocks/*.py "$dir"/apps/*.py "$dir/"drivers/*.py "$dir"/utils/*.py "$dir"/fonts/*.py
 do
-$CROSS $i
+  $CROSS "$i"
 done
-
 

@@ -1,5 +1,5 @@
 # version number
-VERSION = 1
+VERSION = 3
 
 # wifi networks
 NETWORKS = {
