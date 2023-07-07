@@ -48,7 +48,7 @@ class ByteWriter(object):
 
     def __init__(self, stream, varname):
         self.stream = stream
-        self.stream.write('{} =\\\n'.format(varname))
+        self.stream.write("{} =\\\n".format(varname))
         self.bytecount = 0  # For line breaks
 
     def _eol(self):
@@ -64,7 +64,7 @@ class ByteWriter(object):
     def obyte(self, data):
         if not self.bytecount:
             self._bol()
-        self.stream.write('\\x{:02x}'.format(data))
+        self.stream.write("\\x{:02x}".format(data))
         self.bytecount += 1
         self.bytecount %= self.bytes_per_line
         if not self.bytecount:
@@ -79,12 +79,13 @@ class ByteWriter(object):
     def eot(self):  # User force EOL if one hasn't occurred
         if self.bytecount:
             self._eot()
-        self.stream.write('\n')
+        self.stream.write("\n")
 
 
 # Define a global
 def var_write(stream, name, value):
-    stream.write('{} = {}\n'.format(name, value))
+    stream.write("{} = {}\n".format(name, value))
+
 
 # FONT HANDLING
 
@@ -95,6 +96,7 @@ class Bitmap(object):
     the state of a single pixel in the bitmap. A value of 0 indicates that the
     pixel is `off` and any other value indicates that it is `on`.
     """
+
     def __init__(self, width, height, pixels=None):
         self.width = width
         self.height = height
@@ -104,8 +106,8 @@ class Bitmap(object):
         """Print the bitmap's pixels."""
         for row in range(self.height):
             for col in range(self.width):
-                char = '#' if self.pixels[row * self.width + col] else '.'
-                print(char, end='')
+                char = "#" if self.pixels[row * self.width + col] else "."
+                print(char, end="")
             print()
         print()
 
@@ -216,7 +218,6 @@ class Glyph(object):
         # we're iterating over the packed bytes in the input bitmap.
         for row in range(bitmap.rows):
             for byte_index in range(bitmap.pitch):
-
                 # Read the byte that contains the packed pixel data.
                 byte_value = bitmap.buffer[row * bitmap.pitch + byte_index]
 
@@ -234,7 +235,6 @@ class Glyph(object):
                 # So we make sure to stop if we unpack past the current row
                 # of pixels.
                 for bit_index in range(min(8, bitmap.width - num_bits_done)):
-
                     # Unpack the next pixel from the current glyph byte.
                     bit = byte_value & (1 << (7 - bit_index))
 
@@ -258,10 +258,12 @@ class Font(dict):
     def __init__(self, filename, size, minchar, maxchar, monospaced, defchar):
         super().__init__()
         self._face = freetype.Face(filename)
-        if defchar is None: # Binary font
+        if defchar is None:  # Binary font
             self.charset = [chr(char) for char in range(minchar, maxchar + 1)]
         else:
-            self.charset = [chr(defchar)] + [chr(char) for char in range(minchar, maxchar + 1)]
+            self.charset = [chr(defchar)] + [
+                chr(char) for char in range(minchar, maxchar + 1)
+            ]
         self.max_width = self.get_dimensions(size)
         self.width = self.max_width if monospaced else 0
         for char in self.charset:  # Populate dictionary
@@ -285,25 +287,24 @@ class Font(dict):
                 max_ascent = max(max_ascent, glyph.ascent)
                 max_descent = max(max_descent, glyph.descent)
                 # for a few chars e.g. _ glyph.width > glyph.advance_width
-                max_width = int(max(max_width, glyph.advance_width,
-                                        glyph.width))
+                max_width = int(max(max_width, glyph.advance_width, glyph.width))
 
             new_error = required_height - (max_ascent + max_descent)
             if (new_error == 0) or (abs(new_error) - abs(error) == 0):
                 break
             error = new_error
         self.height = int(max_ascent + max_descent)
-        st = 'Height set in {} passes. Actual height {} pixels.\nMax character width {} pixels.'
+        st = "Height set in {} passes. Actual height {} pixels.\nMax character width {} pixels."
         print(st.format(npass + 1, self.height, max_width))
         self._max_descent = int(max_descent)
         return max_width
 
-
     def _glyph_for_character(self, char):
         # Let FreeType load the glyph for the given character and tell it to
         # render a monochromatic bitmap representation.
-        self._face.load_char(char, freetype.FT_LOAD_RENDER |
-                             freetype.FT_LOAD_TARGET_MONO)
+        self._face.load_char(
+            char, freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_MONO
+        )
         return Glyph.from_glyphslot(self._face.glyph)
 
     def _render_char(self, char):
@@ -311,7 +312,7 @@ class Font(dict):
         char_width = int(max(glyph.width, glyph.advance_width))  # Actual width
         # hack to correct spacing problems with small font sizes
         if glyph.width == glyph.advance_width:
-            char_width+=2
+            char_width += 2
         width = self.width if self.width else char_width  # Space required if monospaced
         outbuffer = Bitmap(width, self.height)
 
@@ -334,18 +335,19 @@ class Font(dict):
         index = bytearray((0, 0))
         for char in self.charset:
             width = self[char][1]
-            data += (width).to_bytes(2, byteorder='little')
+            data += (width).to_bytes(2, byteorder="little")
             data += bytearray(self.stream_char(char, hmap, reverse))
-            index += (len(data)).to_bytes(2, byteorder='little')
+            index += (len(data)).to_bytes(2, byteorder="little")
         return data, index
 
     def build_binary_array(self, hmap, reverse, sig):
-        data = bytearray((0x3f + sig, 0xe7, self.max_width, self.height))
+        data = bytearray((0x3F + sig, 0xE7, self.max_width, self.height))
         for char in self.charset:
             width = self[char][2]
             data += bytes((width,))
             data += bytearray(self.stream_char(char, hmap, reverse))
         return data
+
 
 # PYTHON FILE WRITING
 
@@ -379,22 +381,29 @@ def get_ch(ch):
  
 """
 
+
 def write_func(stream, name, arg):
-    stream.write('def {}():\n    return {}\n\n'.format(name, arg))
+    stream.write("def {}():\n    return {}\n\n".format(name, arg))
+
 
 # filename, size, minchar=32, maxchar=126, monospaced=False, defchar=ord('?'):
 
-def write_font(op_path, font_path, height, monospaced, hmap, reverse, minchar, maxchar, defchar):
+
+def write_font(
+    op_path, font_path, height, monospaced, hmap, reverse, minchar, maxchar, defchar
+):
     try:
         fnt = Font(font_path, height, minchar, maxchar, monospaced, defchar)
     except freetype.ft_errors.FT_Exception:
         print("Can't open", font_path)
         return False
     try:
-        with open(op_path, 'w') as stream:
-            write_data(stream, fnt, font_path, monospaced, hmap, reverse, minchar, maxchar)
+        with open(op_path, "w") as stream:
+            write_data(
+                stream, fnt, font_path, monospaced, hmap, reverse, minchar, maxchar
+            )
     except OSError:
-        print("Can't open", op_path, 'for writing')
+        print("Can't open", op_path, "for writing")
         return False
     return True
 
@@ -402,22 +411,23 @@ def write_font(op_path, font_path, height, monospaced, hmap, reverse, minchar, m
 def write_data(stream, fnt, font_path, monospaced, hmap, reverse, minchar, maxchar):
     height = fnt.height  # Actual height, not target height
     stream.write(STR01.format(os.path.split(font_path)[1]))
-    stream.write('\n')
-    write_func(stream, 'height', height)
-    write_func(stream, 'max_width', fnt.max_width)
-    write_func(stream, 'hmap', hmap)
-    write_func(stream, 'reverse', reverse)
-    write_func(stream, 'monospaced', monospaced)
-    write_func(stream, 'min_ch', minchar)
-    write_func(stream, 'max_ch', maxchar)
+    stream.write("\n")
+    write_func(stream, "height", height)
+    write_func(stream, "max_width", fnt.max_width)
+    write_func(stream, "hmap", hmap)
+    write_func(stream, "reverse", reverse)
+    write_func(stream, "monospaced", monospaced)
+    write_func(stream, "min_ch", minchar)
+    write_func(stream, "max_ch", maxchar)
     data, index = fnt.build_arrays(hmap, reverse)
-    bw_font = ByteWriter(stream, '_font')
+    bw_font = ByteWriter(stream, "_font")
     bw_font.odata(data)
     bw_font.eot()
-    bw_index = ByteWriter(stream, '_index')
+    bw_index = ByteWriter(stream, "_index")
     bw_index.odata(index)
     bw_index.eot()
     stream.write(STR02.format(minchar, minchar, maxchar, minchar, maxchar, minchar))
+
 
 # BINARY OUTPUT
 # hmap reverse magic bytes
@@ -435,19 +445,22 @@ def write_binary_font(op_path, font_path, height, hmap, reverse):
     if reverse:
         sig += 2
     try:
-        with open(op_path, 'wb') as stream:
+        with open(op_path, "wb") as stream:
             data = fnt.build_binary_array(hmap, reverse, sig)
             stream.write(data)
     except OSError:
-        print("Can't open", op_path, 'for writing')
+        print("Can't open", op_path, "for writing")
         return False
     return True
 
+
 # PARSE COMMAND LINE ARGUMENTS
+
 
 def quit(msg):
     print(msg)
     sys.exit(1)
+
 
 DESC = """font_to_py.py
 Utility to convert ttf or otf font files to Python source.
@@ -468,76 +481,98 @@ Random access font files don't support an error character.
 """
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(__file__, description=DESC,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('infile', type=str, help='Input file path')
-    parser.add_argument('height', type=int, help='Font height in pixels')
-    parser.add_argument('outfile', type=str,
-                        help='Path and name of output file')
+    parser = argparse.ArgumentParser(
+        __file__, description=DESC, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("infile", type=str, help="Input file path")
+    parser.add_argument("height", type=int, help="Font height in pixels")
+    parser.add_argument("outfile", type=str, help="Path and name of output file")
 
-    parser.add_argument('-x', '--xmap', action='store_true',
-                        help='Horizontal (x) mapping')
-    parser.add_argument('-r', '--reverse', action='store_true',
-                        help='Bit reversal')
-    parser.add_argument('-f', '--fixed', action='store_true',
-                        help='Fixed width (monospaced) font')
-    parser.add_argument('-b', '--binary', action='store_true',
-                        help='Produce binary (random access) font file.')
+    parser.add_argument(
+        "-x", "--xmap", action="store_true", help="Horizontal (x) mapping"
+    )
+    parser.add_argument("-r", "--reverse", action="store_true", help="Bit reversal")
+    parser.add_argument(
+        "-f", "--fixed", action="store_true", help="Fixed width (monospaced) font"
+    )
+    parser.add_argument(
+        "-b",
+        "--binary",
+        action="store_true",
+        help="Produce binary (random access) font file.",
+    )
 
-    parser.add_argument('-s', '--smallest',
-                        type = int,
-                        default = 32,
-                        help = 'Ordinal value of smallest character default %(default)i')
+    parser.add_argument(
+        "-s",
+        "--smallest",
+        type=int,
+        default=32,
+        help="Ordinal value of smallest character default %(default)i",
+    )
 
-    parser.add_argument('-l', '--largest',
-                        type = int,
-                        help = 'Ordinal value of largest character default %(default)i',
-                        default = 126)
+    parser.add_argument(
+        "-l",
+        "--largest",
+        type=int,
+        help="Ordinal value of largest character default %(default)i",
+        default=126,
+    )
 
-    parser.add_argument('-e', '--errchar',
-                        type = int,
-                        help = 'Ordinal value of error character default %(default)i ("?")',
-                        default = 63)
+    parser.add_argument(
+        "-e",
+        "--errchar",
+        type=int,
+        help='Ordinal value of error character default %(default)i ("?")',
+        default=63,
+    )
 
     args = parser.parse_args()
     if not args.infile[0].isalpha():
-        quit('Font filenames must be valid Python variable names.')
+        quit("Font filenames must be valid Python variable names.")
 
     if not os.path.isfile(args.infile):
         quit("Font filename does not exist")
 
-    if not os.path.splitext(args.infile)[1].upper() in ('.TTF', '.OTF'):
+    if not os.path.splitext(args.infile)[1].upper() in (".TTF", ".OTF"):
         quit("Font file should be a ttf or otf file.")
 
     if args.binary:
-        if os.path.splitext(args.outfile)[1].upper() == '.PY':
-            quit('Binary file must not have a .py extension.')
+        if os.path.splitext(args.outfile)[1].upper() == ".PY":
+            quit("Binary file must not have a .py extension.")
 
-        if args.smallest != 32 or args.largest != 126 or args.errchar != ord('?'):
+        if args.smallest != 32 or args.largest != 126 or args.errchar != ord("?"):
             quit(BINARY)
 
-        print('Writing binary font file.')
-        if not write_binary_font(args.outfile, args.infile, args.height,
-                                 args.xmap, args.reverse):
+        print("Writing binary font file.")
+        if not write_binary_font(
+            args.outfile, args.infile, args.height, args.xmap, args.reverse
+        ):
             sys.exit(1)
     else:
-        if not os.path.splitext(args.outfile)[1].upper() == '.PY':
-            quit('Output filename must have a .py extension.')
+        if not os.path.splitext(args.outfile)[1].upper() == ".PY":
+            quit("Output filename must have a .py extension.")
 
         if args.smallest < 0:
-            quit('--smallest must be >= 0')
+            quit("--smallest must be >= 0")
 
         if args.largest > 255:
-            quit('--largest must be < 256')
+            quit("--largest must be < 256")
 
         if args.errchar < 0 or args.errchar > 255:
-            quit('--errchar must be between 0 and 255')
+            quit("--errchar must be between 0 and 255")
 
-        print('Writing Python font file.')
-        if not write_font(args.outfile, args.infile, args.height, args.fixed,
-                          args.xmap, args.reverse, args.smallest, args.largest,
-                          args.errchar):
+        print("Writing Python font file.")
+        if not write_font(
+            args.outfile,
+            args.infile,
+            args.height,
+            args.fixed,
+            args.xmap,
+            args.reverse,
+            args.smallest,
+            args.largest,
+            args.errchar,
+        ):
             sys.exit(1)
 
-    print(args.outfile, 'written successfully.')
-
+    print(args.outfile, "written successfully.")

@@ -18,7 +18,8 @@ from machine import I2S
 from machine import Pin
 from tempos import pm
 
-pm.setPower(0x06,1)
+pm.setPower(0x06, 1)
+
 
 def make_tone(rate, bits, frequency):
     # create a buffer containing the pure tone samples
@@ -27,20 +28,22 @@ def make_tone(rate, bits, frequency):
     samples = bytearray(samples_per_cycle * sample_size_in_bytes)
     volume_reduction_factor = 32
     range = pow(2, bits) // 2 // volume_reduction_factor
-    
+
     if bits == 16:
         format = "<h"
     else:  # assume 32 bits
         format = "<l"
-    
+
     for i in range(samples_per_cycle):
-        sample = range + int((range - 1) * math.sin(2 * math.pi * i / samples_per_cycle))
+        sample = range + int(
+            (range - 1) * math.sin(2 * math.pi * i / samples_per_cycle)
+        )
         struct.pack_into(format, samples, i * sample_size_in_bytes, sample)
-        
+
     return samples
 
-if os.uname().machine.count("PYBv1"):
 
+if os.uname().machine.count("PYBv1"):
     # ======= I2S CONFIGURATION =======
     SCK_PIN = "Y6"
     WS_PIN = "Y5"
@@ -63,7 +66,6 @@ elif os.uname().machine.count("PYBD"):
     # ======= I2S CONFIGURATION =======
 
 elif os.uname().machine.count("ESP32"):
-
     # ======= I2S CONFIGURATION =======
     SCK_PIN = 26
     WS_PIN = 25
@@ -73,7 +75,6 @@ elif os.uname().machine.count("ESP32"):
     # ======= I2S CONFIGURATION =======
 
 elif os.uname().machine.count("Raspberry"):
-
     # ======= I2S CONFIGURATION =======
     SCK_PIN = 16
     WS_PIN = 17
@@ -83,7 +84,6 @@ elif os.uname().machine.count("Raspberry"):
     # ======= I2S CONFIGURATION =======
 
 elif os.uname().machine.count("MIMXRT"):
-
     # ======= I2S CONFIGURATION =======
     SCK_PIN = 4
     WS_PIN = 3

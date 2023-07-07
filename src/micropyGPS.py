@@ -24,21 +24,48 @@ except ImportError:
 
 class MicropyGPS(object):
     """GPS NMEA Sentence Parser. Creates object that stores all relevant GPS data and statistics.
-    Parses sentences one character at a time using update(). """
+    Parses sentences one character at a time using update()."""
 
     # Max Number of Characters a valid sentence can be (based on GGA sentence)
     SENTENCE_LIMIT = 90
-    __HEMISPHERES = ('N', 'S', 'E', 'W')
+    __HEMISPHERES = ("N", "S", "E", "W")
     __NO_FIX = 1
     __FIX_2D = 2
     __FIX_3D = 3
-    __DIRECTIONS = ('N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W',
-                    'WNW', 'NW', 'NNW')
-    __MONTHS = ('January', 'February', 'March', 'April', 'May',
-                'June', 'July', 'August', 'September', 'October',
-                'November', 'December')
+    __DIRECTIONS = (
+        "N",
+        "NNE",
+        "NE",
+        "ENE",
+        "E",
+        "ESE",
+        "SE",
+        "SSE",
+        "S",
+        "SSW",
+        "SW",
+        "WSW",
+        "W",
+        "WNW",
+        "NW",
+        "NNW",
+    )
+    __MONTHS = (
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    )
 
-    def __init__(self, local_offset=0, location_formatting='ddm'):
+    def __init__(self, local_offset=0, location_formatting="ddm"):
         """
         Setup GPS Object Status Flags, Internal Data Registers, etc
             local_offset (int): Timzone Difference to UTC
@@ -77,8 +104,8 @@ class MicropyGPS(object):
         self.local_offset = local_offset
 
         # Position/Motion
-        self._latitude = [0, 0.0, 'N']
-        self._longitude = [0, 0.0, 'W']
+        self._latitude = [0, 0.0, "N"]
+        self._longitude = [0, 0.0, "W"]
         self.coord_format = location_formatting
         self.speed = [0.0, 0.0, 0.0]
         self.course = 0.0
@@ -105,10 +132,10 @@ class MicropyGPS(object):
     @property
     def latitude(self):
         """Format Latitude Data Correctly"""
-        if self.coord_format == 'dd':
+        if self.coord_format == "dd":
             decimal_degrees = self._latitude[0] + (self._latitude[1] / 60)
             return [decimal_degrees, self._latitude[2]]
-        elif self.coord_format == 'dms':
+        elif self.coord_format == "dms":
             minute_parts = modf(self._latitude[1])
             seconds = round(minute_parts[0] * 60)
             return [self._latitude[0], int(minute_parts[1]), seconds, self._latitude[2]]
@@ -118,13 +145,18 @@ class MicropyGPS(object):
     @property
     def longitude(self):
         """Format Longitude Data Correctly"""
-        if self.coord_format == 'dd':
+        if self.coord_format == "dd":
             decimal_degrees = self._longitude[0] + (self._longitude[1] / 60)
             return [decimal_degrees, self._longitude[2]]
-        elif self.coord_format == 'dms':
+        elif self.coord_format == "dms":
             minute_parts = modf(self._longitude[1])
             seconds = round(minute_parts[0] * 60)
-            return [self._longitude[0], int(minute_parts[1]), seconds, self._longitude[2]]
+            return [
+                self._longitude[0],
+                int(minute_parts[1]),
+                seconds,
+                self._longitude[2],
+            ]
         else:
             return self._longitude
 
@@ -136,7 +168,7 @@ class MicropyGPS(object):
         Create GPS data log object
         """
         # Set Write Mode Overwrite or Append
-        mode_code = 'w' if mode == 'new' else 'a'
+        mode_code = "w" if mode == "new" else "a"
 
         try:
             self.log_handle = open(target_file, mode_code)
@@ -161,8 +193,7 @@ class MicropyGPS(object):
         return True
 
     def write_log(self, log_string):
-        """Attempts to write the last valid NMEA sentence character to the active file handler
-        """
+        """Attempts to write the last valid NMEA sentence character to the active file handler"""
         try:
             self.log_handle.write(log_string)
         except TypeError:
@@ -210,8 +241,7 @@ class MicropyGPS(object):
             return False
 
         # Check Receiver Data Valid Flag
-        if self.gps_segments[2] == 'A':  # Data from Receiver is Valid/Has Fix
-
+        if self.gps_segments[2] == "A":  # Data from Receiver is Valid/Has Fix
             # Longitude / Latitude
             try:
                 # Latitude
@@ -263,8 +293,8 @@ class MicropyGPS(object):
             self.new_fix_time()
 
         else:  # Clear Position Data if Sentence is 'Invalid'
-            self._latitude = [0, 0.0, 'N']
-            self._longitude = [0, 0.0, 'W']
+            self._latitude = [0, 0.0, "N"]
+            self._longitude = [0, 0.0, "W"]
             self.speed = [0.0, 0.0, 0.0]
             self.course = 0.0
             self.valid = False
@@ -291,8 +321,7 @@ class MicropyGPS(object):
             return False
 
         # Check Receiver Data Valid Flag
-        if self.gps_segments[6] == 'A':  # Data from Receiver is Valid/Has Fix
-
+        if self.gps_segments[6] == "A":  # Data from Receiver is Valid/Has Fix
             # Longitude / Latitude
             try:
                 # Latitude
@@ -324,8 +353,8 @@ class MicropyGPS(object):
             self.new_fix_time()
 
         else:  # Clear Position Data if Sentence is 'Invalid'
-            self._latitude = [0, 0.0, 'N']
-            self._longitude = [0, 0.0, 'W']
+            self._latitude = [0, 0.0, "N"]
+            self._longitude = [0, 0.0, "W"]
             self.valid = False
 
         return True
@@ -345,7 +374,8 @@ class MicropyGPS(object):
 
     def gpgga(self):
         """Parse Global Positioning System Fix Data (GGA) Sentence. Updates UTC timestamp, latitude, longitude,
-        fix status, satellites in use, Horizontal Dilution of Precision (HDOP), altitude, geoid height and fix status"""
+        fix status, satellites in use, Horizontal Dilution of Precision (HDOP), altitude, geoid height and fix status
+        """
 
         try:
             # UTC Timestamp
@@ -378,7 +408,6 @@ class MicropyGPS(object):
 
         # Process Location and Speed Data if Fix is GOOD
         if fix_stat:
-
             # Longitude / Latitude
             try:
                 # Latitude
@@ -496,27 +525,26 @@ class MicropyGPS(object):
 
         # Try to recover data for up to 4 satellites in sentence
         for sats in range(4, sat_segment_limit, 4):
-
             # If a PRN is present, grab satellite data
             if self.gps_segments[sats]:
                 try:
                     sat_id = int(self.gps_segments[sats])
-                except (ValueError,IndexError):
+                except (ValueError, IndexError):
                     return False
 
                 try:  # elevation can be null (no value) when not tracking
-                    elevation = int(self.gps_segments[sats+1])
-                except (ValueError,IndexError):
+                    elevation = int(self.gps_segments[sats + 1])
+                except (ValueError, IndexError):
                     elevation = None
 
                 try:  # azimuth can be null (no value) when not tracking
-                    azimuth = int(self.gps_segments[sats+2])
-                except (ValueError,IndexError):
+                    azimuth = int(self.gps_segments[sats + 2])
+                except (ValueError, IndexError):
                     azimuth = None
 
                 try:  # SNR can be null (no value) when not tracking
-                    snr = int(self.gps_segments[sats+3])
-                except (ValueError,IndexError):
+                    snr = int(self.gps_segments[sats + 3])
+                except (ValueError, IndexError):
                     snr = None
             # If no PRN is found, then the sentence has no more satellites to read
             else:
@@ -545,7 +573,7 @@ class MicropyGPS(object):
 
     def new_sentence(self):
         """Adjust Object Flags in Preparation for a New Sentence"""
-        self.gps_segments = ['']
+        self.gps_segments = [""]
         self.active_segment = 0
         self.crc_xor = 0
         self.sentence_active = True
@@ -570,24 +598,23 @@ class MicropyGPS(object):
                 self.write_log(new_char)
 
             # Check if a new string is starting ($)
-            if new_char == '$':
+            if new_char == "$":
                 self.new_sentence()
                 return None
 
             elif self.sentence_active:
-
                 # Check if sentence is ending (*)
-                if new_char == '*':
+                if new_char == "*":
                     self.process_crc = False
                     self.active_segment += 1
-                    self.gps_segments.append('')
+                    self.gps_segments.append("")
                     return None
 
                 # Check if a section is ended (,), Create a new substring to feed
                 # characters to
-                elif new_char == ',':
+                elif new_char == ",":
                     self.active_segment += 1
-                    self.gps_segments.append('')
+                    self.gps_segments.append("")
 
                 # Store All Other printable character and check CRC when ready
                 else:
@@ -595,10 +622,11 @@ class MicropyGPS(object):
 
                     # When CRC input is disabled, sentence is nearly complete
                     if not self.process_crc:
-
                         if len(self.gps_segments[self.active_segment]) == 2:
                             try:
-                                final_crc = int(self.gps_segments[self.active_segment], 16)
+                                final_crc = int(
+                                    self.gps_segments[self.active_segment], 16
+                                )
                                 if self.crc_xor == final_crc:
                                     valid_sentence = True
                                 else:
@@ -616,10 +644,8 @@ class MicropyGPS(object):
                     self.sentence_active = False  # Clear Active Processing Flag
 
                     if self.gps_segments[0] in self.supported_sentences:
-
                         # parse the Sentence Based on the message type, return True if parse is clean
                         if self.supported_sentences[self.gps_segments[0]](self):
-
                             # Let host know that the GPS object was updated by returning parsed sentence type
                             self.parsed_sentences += 1
                             return self.gps_segments[0]
@@ -649,7 +675,10 @@ class MicropyGPS(object):
         Checks if the all the GSV sentences in a group have been read, making satellite data complete
         :return: boolean
         """
-        if self.total_sv_sentences > 0 and self.total_sv_sentences == self.last_sv_sentence:
+        if (
+            self.total_sv_sentences > 0
+            and self.total_sv_sentences == self.last_sv_sentence
+        ):
             return True
         else:
             return False
@@ -707,14 +736,28 @@ class MicropyGPS(object):
         Create a readable string of the current latitude data
         :return: string
         """
-        if self.coord_format == 'dd':
+        if self.coord_format == "dd":
             formatted_latitude = self.latitude
-            lat_string = str(formatted_latitude[0]) + '° ' + str(self._latitude[2])
-        elif self.coord_format == 'dms':
+            lat_string = str(formatted_latitude[0]) + "° " + str(self._latitude[2])
+        elif self.coord_format == "dms":
             formatted_latitude = self.latitude
-            lat_string = str(formatted_latitude[0]) + '° ' + str(formatted_latitude[1]) + "' " + str(formatted_latitude[2]) + '" ' + str(formatted_latitude[3])
+            lat_string = (
+                str(formatted_latitude[0])
+                + "° "
+                + str(formatted_latitude[1])
+                + "' "
+                + str(formatted_latitude[2])
+                + '" '
+                + str(formatted_latitude[3])
+            )
         else:
-            lat_string = str(self._latitude[0]) + '° ' + str(self._latitude[1]) + "' " + str(self._latitude[2])
+            lat_string = (
+                str(self._latitude[0])
+                + "° "
+                + str(self._latitude[1])
+                + "' "
+                + str(self._latitude[2])
+            )
         return lat_string
 
     def longitude_string(self):
@@ -722,38 +765,52 @@ class MicropyGPS(object):
         Create a readable string of the current longitude data
         :return: string
         """
-        if self.coord_format == 'dd':
+        if self.coord_format == "dd":
             formatted_longitude = self.longitude
-            lon_string = str(formatted_longitude[0]) + '° ' + str(self._longitude[2])
-        elif self.coord_format == 'dms':
+            lon_string = str(formatted_longitude[0]) + "° " + str(self._longitude[2])
+        elif self.coord_format == "dms":
             formatted_longitude = self.longitude
-            lon_string = str(formatted_longitude[0]) + '° ' + str(formatted_longitude[1]) + "' " + str(formatted_longitude[2]) + '" ' + str(formatted_longitude[3])
+            lon_string = (
+                str(formatted_longitude[0])
+                + "° "
+                + str(formatted_longitude[1])
+                + "' "
+                + str(formatted_longitude[2])
+                + '" '
+                + str(formatted_longitude[3])
+            )
         else:
-            lon_string = str(self._longitude[0]) + '° ' + str(self._longitude[1]) + "' " + str(self._longitude[2])
+            lon_string = (
+                str(self._longitude[0])
+                + "° "
+                + str(self._longitude[1])
+                + "' "
+                + str(self._longitude[2])
+            )
         return lon_string
 
-    def speed_string(self, unit='kph'):
+    def speed_string(self, unit="kph"):
         """
         Creates a readable string of the current speed data in one of three units
         :param unit: string of 'kph','mph, or 'knot'
         :return:
         """
-        if unit == 'mph':
-            speed_string = str(self.speed[1]) + ' mph'
+        if unit == "mph":
+            speed_string = str(self.speed[1]) + " mph"
 
-        elif unit == 'knot':
+        elif unit == "knot":
             if self.speed[0] == 1:
-                unit_str = ' knot'
+                unit_str = " knot"
             else:
-                unit_str = ' knots'
+                unit_str = " knots"
             speed_string = str(self.speed[0]) + unit_str
 
         else:
-            speed_string = str(self.speed[2]) + ' km/h'
+            speed_string = str(self.speed[2]) + " km/h"
 
         return speed_string
 
-    def date_string(self, formatting='s_mdy', century='20'):
+    def date_string(self, formatting="s_mdy", century="20"):
         """
         Creates a readable string of the current date.
         Can select between long format: Januray 1st, 2014
@@ -766,65 +823,75 @@ class MicropyGPS(object):
         """
 
         # Long Format Januray 1st, 2014
-        if formatting == 'long':
+        if formatting == "long":
             # Retrieve Month string from private set
             month = self.__MONTHS[self.date[1] - 1]
 
             # Determine Date Suffix
             if self.date[0] in (1, 21, 31):
-                suffix = 'st'
+                suffix = "st"
             elif self.date[0] in (2, 22):
-                suffix = 'nd'
+                suffix = "nd"
             elif self.date[0] == (3, 23):
-                suffix = 'rd'
+                suffix = "rd"
             else:
-                suffix = 'th'
+                suffix = "th"
 
             day = str(self.date[0]) + suffix  # Create Day String
 
             year = century + str(self.date[2])  # Create Year String
 
-            date_string = month + ' ' + day + ', ' + year  # Put it all together
+            date_string = month + " " + day + ", " + year  # Put it all together
 
         else:
             # Add leading zeros to day string if necessary
             if self.date[0] < 10:
-                day = '0' + str(self.date[0])
+                day = "0" + str(self.date[0])
             else:
                 day = str(self.date[0])
 
             # Add leading zeros to month string if necessary
             if self.date[1] < 10:
-                month = '0' + str(self.date[1])
+                month = "0" + str(self.date[1])
             else:
                 month = str(self.date[1])
 
             # Add leading zeros to year string if necessary
             if self.date[2] < 10:
-                year = '0' + str(self.date[2])
+                year = "0" + str(self.date[2])
             else:
                 year = str(self.date[2])
 
             # Build final string based on desired formatting
-            if formatting == 's_dmy':
-                date_string = day + '/' + month + '/' + year
+            if formatting == "s_dmy":
+                date_string = day + "/" + month + "/" + year
 
             else:  # Default date format
-                date_string = month + '/' + day + '/' + year
+                date_string = month + "/" + day + "/" + year
 
         return date_string
 
     # All the currently supported NMEA sentences
-    supported_sentences = {'GPRMC': gprmc, 'GLRMC': gprmc,
-                           'GPGGA': gpgga, 'GLGGA': gpgga,
-                           'GPVTG': gpvtg, 'GLVTG': gpvtg,
-                           'GPGSA': gpgsa, 'GLGSA': gpgsa,
-                           'GPGSV': gpgsv, 'GLGSV': gpgsv,
-                           'GPGLL': gpgll, 'GLGLL': gpgll,
-                           'GNGGA': gpgga, 'GNRMC': gprmc,
-                           'GNVTG': gpvtg, 'GNGLL': gpgll,
-                           'GNGSA': gpgsa,
-                          }
+    supported_sentences = {
+        "GPRMC": gprmc,
+        "GLRMC": gprmc,
+        "GPGGA": gpgga,
+        "GLGGA": gpgga,
+        "GPVTG": gpvtg,
+        "GLVTG": gpvtg,
+        "GPGSA": gpgsa,
+        "GLGSA": gpgsa,
+        "GPGSV": gpgsv,
+        "GLGSV": gpgsv,
+        "GPGLL": gpgll,
+        "GLGLL": gpgll,
+        "GNGGA": gpgga,
+        "GNRMC": gprmc,
+        "GNVTG": gpvtg,
+        "GNGLL": gpgll,
+        "GNGSA": gpgsa,
+    }
+
 
 if __name__ == "__main__":
     pass

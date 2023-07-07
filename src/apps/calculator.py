@@ -1,15 +1,16 @@
 from micropython import const
-from tempos import g,sched
-from graphics import rgb,WHITE,BLACK,GREEN,GREY
-from fonts import roboto24,roboto36
-from button import Theme,RoundButton,ButtonMan
+from tempos import g, sched
+from graphics import rgb, WHITE, BLACK, GREEN, GREY
+from fonts import roboto24, roboto36
+from button import Theme, RoundButton, ButtonMan
 import math
 
-ORANGE = rgb(0xf1,0xc2,0x71)#f1c271
-LIGHTGREY = rgb(200,200,200)
+ORANGE = rgb(0xF1, 0xC2, 0x71)  # f1c271
+LIGHTGREY = rgb(200, 200, 200)
 
-nu_theme = Theme(WHITE,LIGHTGREY,GREEN,LIGHTGREY,roboto24)
-op_theme = Theme(WHITE,ORANGE,GREEN,ORANGE,roboto24)
+nu_theme = Theme(WHITE, LIGHTGREY, GREEN, LIGHTGREY, roboto24)
+op_theme = Theme(WHITE, ORANGE, GREEN, ORANGE, roboto24)
+
 
 def get_theme(s):
     global nu_theme, op_theme
@@ -17,53 +18,53 @@ def get_theme(s):
         return nu_theme
     else:
         return op_theme
-    
-fields = ( '789+('
-           '456-)'
-           '123*^'
-           'C0./=' )
-           
+
+
+fields = "789+(" "456-)" "123*^" "C0./="
+
 buttons = ButtonMan()
 
 output = ""
 
+
 def drawOutput(now=True):
     global output
-    g.fill_rect(4,0,g.width-8,40,GREY)
+    g.fill_rect(4, 0, g.width - 8, 40, GREY)
     g.setfont(roboto36)
-    g.setfontalign(0,-1)
-    g.text(output,120,2,WHITE)
+    g.setfontalign(0, -1)
+    g.text(output, 120, 2, WHITE)
     if now:
         g.show()
 
+
 def action(s):
     global output
-    if (s == "C"):
+    if s == "C":
         output = ""
-    elif (s == "="):
+    elif s == "=":
         try:
-            output = str(eval(output.replace('^', '**')))[:12]
+            output = str(eval(output.replace("^", "**")))[:12]
         except:
             output = "Error"
     else:
-        output +=  s
+        output += s
     drawOutput()
 
-for j in range(0,4):
-    for i in range(0,5):
-        s = fields[j*5+i]
-        b = RoundButton(s,i*48+4,(j+1)*48+4,40,40,theme=get_theme(s))
+
+for j in range(0, 4):
+    for i in range(0, 5):
+        s = fields[j * 5 + i]
+        b = RoundButton(s, i * 48 + 4, (j + 1) * 48 + 4, 40, 40, theme=get_theme(s))
         buttons.add(b)
-        b.callback(action,s)
+        b.callback(action, s)
 
 
 def app_init():
     global buttons
     drawOutput(False)
     buttons.start()
-    
+
+
 def app_end():
     buttons.stop()
     g.fill(BLACK)
-
-
