@@ -3,7 +3,7 @@
 
 # install .mpy and .png files on target
 
-echo "Making directories" 
+echo "Making directories"
 for i in apps drivers utils fonts images clocks
 do
     mpremote a0 fs mkdir $i
@@ -11,7 +11,7 @@ done
 
 mpremote a0 fs mkdir images/weather
 
-echo "Loading mpy files" 
+echo "Loading mpy files"
 for i in ./*.mpy  clocks/*.mpy apps/*.mpy drivers/*.mpy utils/*.mpy fonts/*.mpy
 do
     # For V3, don't copy the apps that need GPS
@@ -20,19 +20,19 @@ do
         if [[ $i != "apps/position.mpy" ]] && [[ $i != "apps/maps.mpy" ]] && [[ $i != "./micropyGPS.mpy" ]] && [[ $i != "apps/openstreetmap.mpy" ]]
         then
             echo "COPYING $i"
-            mpremote a0 fs cp $i :$i
+            mpremote a0 fs cp "$i" :"$i"
         else
             echo "WILL NOT COPY $i"
         fi
     else
-        mpremote a0 fs cp $i :$i
+        mpremote a0 fs cp "$i" :"$i"
     fi
 done
 
-echo "Loading image files" 
+echo "Loading image files"
 for i in images/*.png images/weather/*.png
 do
-    mpremote a0 fs cp $i :$i
+    mpremote a0 fs cp "$i" :"$i"
 done
 
 echo "Write Location file"
