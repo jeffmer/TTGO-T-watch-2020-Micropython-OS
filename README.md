@@ -1,6 +1,6 @@
-# Micropython T-watch 2020 V1 & V2
+# Micropython T-watch 2020 V1 & V2 & V3
 
-This repository is an implementation entirely in Micropython of a supporting operating system and applications for the Lilygo T-watch 2020. It has been tested for V1 and V2 only.
+This repository is an implementation entirely in Micropython of a supporting operating system and applications for the Lilygo T-watch 2020. It has been tested for V1 and V2 only, and very recently ported on V3.
 
 Video of watch in operation https://youtu.be/TL3tCaUthRQ
 
@@ -143,10 +143,9 @@ The T-watch has 4 megabytes of SPIRAM. To exploit this to make the watch respons
 ## Installation
 
 
-1. From the `firmware`folder install the image `firmware.bin`on the t-watch - I use **thonny** from https://thonny.org/. This image implements GPIO wake up from light sleep and gives access to the full 16M of flash  which the standard generic builds do not.
+1. From the `firmware`folder install the image `firmware.bin`on the t-watch - to do so you can follow the steps described in the section 'How to firmware flash' below. This image implements GPIO wake up from light sleep and gives access to the full 16M of flash  which the standard generic builds do not.
 
-
-2. Edit the `config.py` file setting  the  version of your T-watch 1 or 2, wifi network information open weather map key.
+2. Edit the `config.py` file setting the  version of your T-watch (1, 2 or 3), WIFI network information, open weather map key.
 
 3. Edit `location.json` with your location - used by the weather app.
 
@@ -167,10 +166,15 @@ A recent update  reduces the voltage supply from 3.3V to 2.7V  during sleep, the
 
 which with light use should give two or three days battery life for V1 watches and three or four days with V2 watches. (The V1 watch has no way to reset the touch driver chip and so it cannot be put into its power saving hibernate mode during light sleep)
 
+### How to firmware flash
 
-
-
-
-
-
- 
+* Install the latest **[thonny](https://thonny.org/)**
+* Install `esptool` with `python -m pip install esptool` (be careful, some other repos have very outdated versions)
+* Likewise install `mpremote` with `python -m pip install mpremote`
+* Connect your watch via USB to your computer. Make sure to use a proper wire that allows data and not only a charging cable.
+* Open thonny, in the top bar click on `Tools` then `Select interpreter`.
+* In the new window, as the two dropdowns menus select the interpreter `MicroPython (ESP32)` and the appropriate USB port. Then instead of clicking on "OK" click on `Install or update firmware`.
+* Select the file `firmware.bin` from this repository and the appropriate USB port. As `Flash mode` pick `From image file (keep)`. Tick the box `Erase flash before installing`.
+* Click on `Install`.
+* To show progress, click on the bottom left status message.
+* The whole installation should take on the order of 5 minutes.
