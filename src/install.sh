@@ -48,3 +48,5 @@ echo "copied"
 
 echo "Reset"
 mpremote a0 soft-reset
+
+exit 0
