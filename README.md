@@ -163,6 +163,7 @@ A recent update  reduces the voltage supply from 3.3V to 2.7V  during sleep, the
 
 * V1 = 2.0 ma
 * V2 = 1.3 ma
+* V3 = *not yet measured*
 
 which with light use should give two or three days battery life for V1 watches and three or four days with V2 watches. (The V1 watch has no way to reset the touch driver chip and so it cannot be put into its power saving hibernate mode during light sleep)
 
