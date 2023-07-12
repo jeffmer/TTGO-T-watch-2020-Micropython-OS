@@ -169,6 +169,7 @@ which with light use should give two or three days battery life for V1 watches a
 ### How to firmware flash
 
 ### CLI method (esptool)
+* *You can read more at [the following adress](https://docs.micropython.org/en/v1.20.0/esp32/tutorial/intro.html#deploying-the-firmware)*
 * Install `esptool` with `python -m pip install esptool` (be careful, some other repos have very outdated versions)
 * Connect your watch via USB to your computer. Make sure to use a proper wire that allows data and not only a charging cable.
 * Find out which port the watch is using (when in doubt, usethe Thonny method)
