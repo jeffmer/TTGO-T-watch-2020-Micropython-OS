@@ -90,7 +90,7 @@ The central tempos` module instantiates  device drivers:
  
 `tc`  - touch (FT6236), 
 
-`buzzer` =- (DRV2605 - *V2 only*), 
+`buzzer` =- (DRV2605 - *V2 and V3 only*)
 
 In addition, this module encapsulates watch settings, manages putting the watch into light sleep and subsequent reawakening via wrist tilt or double tap and creates the scheduling object `sched`.
 
