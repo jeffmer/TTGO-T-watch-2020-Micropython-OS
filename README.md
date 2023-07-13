@@ -1,4 +1,4 @@
-# Micropython T-watch 2020 V1 & V2 & V3
+# Micropython T-watch 2020 (V1, V2 & V3)
 
 This repository is an implementation entirely in Micropython of a supporting operating system and applications for the Lilygo T-watch 2020. It has been tested for V1 and V2 only, and very recently ported on V3.
 
