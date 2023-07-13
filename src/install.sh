@@ -27,6 +27,7 @@ do
     else
         mpremote a0 fs cp "$i" :"$i"
     fi
+    rm "$i"
 done
 
 echo "Loading image files"
@@ -43,6 +44,7 @@ mpremote a0 fs rm :boot.mpy
 mpremote a0 fs rm :boot.py
 mpremote a0 fs cp boot.mpy :boot.mpy
 mpremote a0 fs cp boot.py :boot.py
+rm "boot.mpy"
 
 echo "Resetting watch"
 mpremote a0 soft-reset
