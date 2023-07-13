@@ -41,12 +41,10 @@ mpremote a0 fs cp location.json :location.json
 echo "Write Boot file"
 mpremote a0 fs rm :boot.mpy
 mpremote a0 fs rm :boot.py
-echo "deleted"
 mpremote a0 fs cp boot.mpy :boot.mpy
 mpremote a0 fs cp boot.py :boot.py
-echo "copied"
 
-echo "Reset"
+echo "Resetting watch"
 mpremote a0 soft-reset
 
 exit 0
