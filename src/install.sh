@@ -3,6 +3,9 @@
 
 # install .mpy and .png files on target
 
+# set delete_mpy to 1 if you want your .mpy files to be deleted after use
+delete_mpy=0
+
 echo "Making directories"
 for i in apps drivers utils fonts images clocks
 do
@@ -27,7 +30,11 @@ do
     else
         mpremote a0 fs cp "$i" :"$i"
     fi
-    rm "$i"
+
+    if [[ $delete_mpy == 1 ]]
+    then
+        rm "$i"
+    fi
 done
 
 echo "Loading image files"
@@ -44,7 +51,11 @@ mpremote a0 fs rm :boot.mpy
 mpremote a0 fs rm :boot.py
 mpremote a0 fs cp boot.mpy :boot.mpy
 mpremote a0 fs cp boot.py :boot.py
-rm "boot.mpy"
+
+if [[ $delete_mpy == 1 ]]
+then
+    rm "boot.mpy"
+fi
 
 echo "Resetting watch"
 mpremote a0 soft-reset
