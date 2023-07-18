@@ -145,7 +145,7 @@ The T-watch has 4 megabytes of SPIRAM. To exploit this to make the watch respons
 
 1. From the `firmware`folder install the image `firmware.bin`on the t-watch - to do so you can follow the steps described in the section 'How to firmware flash' below. This image implements GPIO wake up from light sleep and gives access to the full 16M of flash  which the standard generic builds do not.
 
-2. Edit the `config.py` file setting the  version of your T-watch (1, 2 or 3), WIFI network information, open weather map key.
+2. Edit the `config.py` file setting the  version of your T-watch, WIFI network information(s), open weather map key, timezone and summertime.
 
 3. Edit `location.json` with your location - used by the weather app.
 
