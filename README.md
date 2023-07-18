@@ -1,6 +1,6 @@
-# Micropython T-watch 2020 (V1, V2 & V3)
+# TempOS - Micropython OS for the LilyGO T-Watch 2020
 
-This repository is an implementation entirely in Micropython of a supporting operating system and applications for the Lilygo T-watch 2020. It has been tested for V1 and V2 only, and very recently ported on V3.
+TempOS is an implementation entirely in Micropython of a supporting operating system and applications for the LilyGO T-Watch 2020. It has been tested for V1 and V2, and recently ported to V3.
 
 Video of watch in operation https://youtu.be/TL3tCaUthRQ
 
@@ -28,7 +28,7 @@ An application module is installed by copying its file into one of three folders
 
 ![](images/small/calculator.png)  ![](images/small/weather.png) ![](images/small/puzzle.png)
 
-### V2 only
+### GPS apps (V2 only)
 
 ![](images/small/position.png)  ![](images/small/osmtiles.png) ![](images/small/maps.png)
 
