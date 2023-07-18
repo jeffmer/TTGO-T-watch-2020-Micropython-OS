@@ -157,6 +157,8 @@ The T-watch has 4 megabytes of SPIRAM. To exploit this to make the watch respons
 
 If nothing happens on reboot a good first step in debugging is to comment out the line `import loader` in `boot.py` and reset the watch. Then, using `REPL` type `import tempos` which should load all the drivers and - after a delay - display `Loading ...` on the watch screen. 
 
+6. To sync your watch time with the NTP time, navigate via swiping to the time app and click on "Sync with NTP".
+
 ### Battery life
 
 A recent update  reduces the voltage supply from 3.3V to 2.7V  during sleep, the light sleep current is now measured at:
