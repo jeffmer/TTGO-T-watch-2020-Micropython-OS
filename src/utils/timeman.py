@@ -7,9 +7,6 @@ from wifi import do_connected_action
 import ntptime
 from widgets import ValueDisplay, Label, SwitchPanel
 
-# time zone adjustment
-dst = False
-
 
 def zadjust(incr):
     settings.timezone += incr
@@ -21,7 +18,7 @@ def changedst(v):
 
 
 buttons = ButtonMan()
-zone = ValueDisplay("Time Zone", 2, False, 1, zadjust, buttons)
+zone = ValueDisplay("Time Zone", 2, settings.timezone, 1, zadjust, buttons)
 dst = SwitchPanel("Summer Time", 102, settings.dst, changedst, buttons)
 
 # time synchronisation
