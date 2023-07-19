@@ -1,7 +1,7 @@
 import time
 from micropython import const
 from tempos import g, pm, sched, settings
-from graphics import rgb, WHITE, BLACK, YELLOW, GREY, GREEN, LIGHTGREY
+from graphics import rgb, WHITE, BLACK, YELLOW, GREY, GREEN, LIGHTGREY, RED
 from fonts import roboto18, roboto24, roboto36
 from button import ArrowButton, ButtonMan, Theme, Button
 import math
@@ -138,3 +138,45 @@ class SwitchPanel(Button):
         self.draw()
         if self._change is not None:
             self._change(self._state)
+
+
+class BatteryMeter:
+    """Battery meter widget.
+
+    A simple battery meter with a charging indicator, will draw at the
+    top-right of the display.
+    """
+    def __init__(self):
+        self.level = -2
+
+    def draw(self):
+        """Draw from meter (from scratch)."""
+        self.level = -2
+        self.update()
+
+    def update(self):
+        """Update the meter.
+
+        The update is lazy and won't redraw unless the level has changed.
+        """
+        level = pm.batPercent()
+        unit = settings.battery_unit
+
+        if level == self.level:
+            return
+
+        g.setfont(roboto18)
+        if pm.batA() > 0:  # is charging
+            col = GREEN
+        elif level <= 30:
+            col = RED
+        else:
+            col = WHITE
+        g.setcolor(col)
+        if unit == "volt":
+            val = "{}V".format(round(pm.batV(), 1))
+        elif unit == "percent":
+            val = "{}%".format(level)
+        g.text(val, x=200, y=0)
+        self.level = level
+        g.show()
