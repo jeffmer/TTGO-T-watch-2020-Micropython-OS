@@ -1,7 +1,8 @@
+import time
 from micropython import const
 from tempos import g, pm, sched, settings
 from graphics import rgb, WHITE, BLACK, YELLOW, GREY, GREEN, LIGHTGREY
-from fonts import roboto24, roboto36
+from fonts import roboto18, roboto24, roboto36
 from button import ArrowButton, ButtonMan, Theme, Button
 import math
 
@@ -24,58 +25,58 @@ class Label:
             g.show()
 
 
-_X = const(50)
-_Y = const(45)
-_W = const(140)
-_H = const(40)
-_B = const(2)
-
 
 class ValueDisplay:
     theme = Theme(WHITE, LIGHTGREY, GREEN, LIGHTGREY, roboto24)
 
-    def __init__(self, title, Y, barorval, incr, userfn, buttonman):
+    def __init__(self, title, Y, barorval, incr, userfn, buttonman, font=roboto36):
         self._title = title
         self._YOFF = Y
         self._barorval = barorval
         self._incr = incr
         self._userfn = userfn
+        self._X = const(50)
+        self._Y = const(35)
+        self._W = const(140)
+        self._H = const(40)
+        self._B = const(2)
         self._minus = ArrowButton(
-            "-", 0, self._YOFF + _Y, 50, _H, theme=self.theme, dir=3
+            "-", 0, self._YOFF + self._Y, 50, self._H, theme=self.theme, dir=3
         )
         self._plus = ArrowButton(
-            "+", _X + _W, self._YOFF + _Y, 50, _H, theme=self.theme, dir=1
+            "+", self._X + self._W, self._YOFF + self._Y, 50, self._H, theme=self.theme, dir=1
         )
         self._minus.callback(self.adjust, -self._incr)
         self._plus.callback(self.adjust, self._incr)
         buttonman.add(self._minus)
         buttonman.add(self._plus)
+        self._font = font
 
     def drawBar(self, v, now=True):
-        g.fill_rect(_X, self._YOFF + _Y, _W, _H, LIGHTGREY)
-        g.fill_rect(_X + _B, self._YOFF + _Y + _B, _W - 2 * _B, _H - 2 * _B, GREY)
+        g.fill_rect(self._X, self._YOFF + self._Y, self._W, self._H, LIGHTGREY)
+        g.fill_rect(self._X + self._B, self._YOFF + self._Y + self._B, self._W - 2 * self._B, self._H - 2 * self._B, GREY)
         g.fill_rect(
-            _X + _B + 2,
-            self._YOFF + _Y + _B + 2,
-            math.ceil((_W - 2 * _B - 4) * v),
-            _H - _B * 2 - 4,
+            self._X + self._B + 2,
+            self._YOFF + self._Y + self._B + 2,
+            math.ceil((self._W - 2 * self._B - 4) * v),
+            self._H - self._B * 2 - 4,
             YELLOW,
         )
         if now:
             g.show()
 
     def drawVal(self, v, now=True):
-        g.setfont(roboto36)
+        g.setfont(self._font)
         s = "{}".format(v)
-        g.fill_rect(_X, self._YOFF + _Y, _W, _H, LIGHTGREY)
-        g.fill_rect(_X + _B, self._YOFF + _Y + _B, _W - 2 * _B, _H - 2 * _B, GREY)
+        g.fill_rect(self._X, self._YOFF + self._Y, self._W, self._H, LIGHTGREY)
+        g.fill_rect(self._X + self._B, self._YOFF + self._Y + self._B, self._W - 2 * self._B, self._H - 2 * self._B, GREY)
         g.setfontalign(0, -1)
-        g.text(s, 120, self._YOFF + _Y + 3, WHITE)
+        g.text(s, 120, self._YOFF + self._Y + 3, WHITE)
         if now:
             g.show()
 
     def drawInit(self, v):
-        g.setfont(roboto36)
+        g.setfont(self._font)
         g.setfontalign(0, -1)
         g.text(self._title, 120, self._YOFF, WHITE)
         if self._barorval:
