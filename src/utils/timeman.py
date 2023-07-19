@@ -22,7 +22,7 @@ def changedst(v):
 
 
 buttons = ButtonMan()
-zone = ValueDisplay("Time Zone", 2, settings.timezone, 1, zadjust, buttons)
+zone = ValueDisplay("Time Zone", 10, False, 1, zadjust, buttons, font=roboto24)
 dst = SwitchPanel("Summer Time", 102, settings.dst, changedst, buttons)
 
 # time synchronisation
