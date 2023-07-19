@@ -1,7 +1,7 @@
 from micropython import const
 from tempos import g, sched, set_local_time, rtc, prtc, settings
 from graphics import rgb, WHITE, BLACK, YELLOW
-from fonts import roboto24, roboto36
+from fonts import roboto18, roboto24, roboto36
 from button import Button, RoundButton, ButtonMan
 from wifi import do_connected_action
 import ntptime
@@ -22,13 +22,13 @@ def changedst(v):
 
 
 buttons = ButtonMan()
-zone = ValueDisplay("Time Zone", 10, False, 1, zadjust, buttons, font=roboto24)
+zone = ValueDisplay("Time Zone", 15, False, 1, zadjust, buttons, font=roboto24)
 dst = SwitchPanel("Summer Time", 102, settings.dst, changedst, buttons)
 
 # time synchronisation
 
-status = Label(20, 200, 160, 40, roboto24, YELLOW)
-progress = Label(200, 200, 40, 40, roboto24, YELLOW)
+status = Label(20, 200, 160, 40, roboto18, YELLOW)
+progress = Label(200, 200, 40, 40, roboto18, YELLOW)
 clock = Clock()
 
 
