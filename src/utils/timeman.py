@@ -10,6 +10,10 @@ from widgets import ValueDisplay, Label, SwitchPanel
 
 def zadjust(incr):
     settings.timezone += incr
+    if settings.timezone > 12:
+        settings.timezone = -11
+    elif settings.timezone < -12:
+        settings.timezone = 11
     return settings.timezone
 
 
