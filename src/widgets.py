@@ -221,3 +221,21 @@ class BatteryMeter:
         g.text(val, x=200, y=0)
         self.level = level
         g.show()
+
+
+class StatusBar:
+    """Combo widget to handle time and battery level."""
+    def __init__(self):
+        self._clock = Clock()
+        self._meter = BatteryMeter()
+
+    def draw(self):
+        """Redraw the status bar from scratch."""
+        self._clock.draw()
+        self._meter.draw()
+
+    def update(self):
+        """Lazily update the status bar.
+        """
+        self._clock.update()
+        self._meter.update()
