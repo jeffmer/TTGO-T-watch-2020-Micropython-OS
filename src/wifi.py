@@ -4,6 +4,7 @@ from config import NETWORKS
 
 
 def getNetwork(wlan):
+    "finds which surounding wifi networks can be logged into using the config.py file"
     accpts = wlan.scan()
     for a in accpts:
         name = str(a[0], "UTF-8")
@@ -14,6 +15,7 @@ def getNetwork(wlan):
 
 
 def do_connected_action(action, status, progress):
+    "connect to internet then execute fn 'action'. Write output to status and progress Labels"
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     status.update("Scanning")

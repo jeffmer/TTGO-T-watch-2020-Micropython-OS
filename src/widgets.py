@@ -8,6 +8,7 @@ import math
 
 
 class Label:
+    "used to display text using a specific font, color and rectangle area"
     def __init__(self, x, y, w, h, font, c):
         self.font = font
         self.x = x

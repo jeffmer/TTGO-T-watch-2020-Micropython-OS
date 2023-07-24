@@ -4,12 +4,12 @@ from fonts import glcdfont
 import math
 
 
-# Convert r, g, b in range 0-255 to a 16 bit colour value
-# LS byte goes into LUT offset 0, MS byte into offset 1
-# Same mapping in linebuf so LS byte is shifted out 1st
-# ILI9341 expects RGB order
 @micropython.viper
 def rgb(r: int, g: int, b: int) -> int:
+    """Convert r, g, b in range 0-255 to a 16 bit colour value
+    LS byte goes into LUT offset 0, MS byte into offset 1
+    Same mapping in linebuf so LS byte is shifted out 1st
+    ILI9341 expects RGB order"""
     return (r & 0xF8) | (g & 0xE0) >> 5 | (g & 0x1C) << 11 | (b & 0xF8) << 5
 
 
@@ -29,8 +29,8 @@ DARKBLUE = rgb(0, 0, 90)
 WHITE = rgb(255, 255, 255)
 
 
-# rotates an integer array of corrdinates by angle theta
 def rotate(coord, theta):
+    "rotates an integer array of coordinates by angle theta"
     sinr = math.sin(theta)
     cosr = math.cos(theta)
     for i in range(0, len(coord), 2):
@@ -145,6 +145,7 @@ class Graphics(framebuf.FrameBuffer):
         return self._font.get_width(str), self._font.height()
 
     def text(self, str, x, y, c=None):
+        "write a string of text. Optional color of letters can be specified by c"
         str_w, str_h = self.text_dim(str)
         x_a, y_a = self._align
         x = x if x_a == -1 else x - str_w if x_a == 1 else x - str_w // 2
@@ -169,6 +170,7 @@ class Graphics(framebuf.FrameBuffer):
         return str_w
 
     def wordwraptext(self, str, x, y, w, c=None):
+        "write a string of text of color c. Automatically wrap text if the width is larger than w"
         curx = x
         cury = y
         char_h = self._font.height()
