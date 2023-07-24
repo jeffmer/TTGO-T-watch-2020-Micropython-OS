@@ -178,6 +178,7 @@ which with light use should give two or three days battery life for V1 watches a
 * Find out which port the watch is using (when in doubt, use the Thonny method)
 * `python -m esptool --port /dev/ttyACM0 erase_flash`
 * `python -m esptool --port /dev/ttyACM0 --chip esp32 write_flash -z 0x1000 ./firmware/firmware.bin`
+* `python -m esptool --port /dev/ttyACM0 --chip esp32 verify_flash 0x1000 ../firmware/firmware.bin`
 
 ### GUI method (Thonny)
 
