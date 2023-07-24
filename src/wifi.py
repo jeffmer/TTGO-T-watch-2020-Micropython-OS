@@ -14,34 +14,42 @@ def getNetwork(wlan):
     return "notfound"
 
 
-def do_connected_action(action, status, progress):
-    "connect to internet then execute fn 'action'. Write output to status and progress Labels"
+def do_connected_action(action, status=None, progress=None):
+    "connect to internet then execute fn 'action'. Write output to status and progress Labels. If status is None, output will be printed instead."
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    status.update("Scanning")
+    if status:
+        output = status.update
+    else:
+        output = print
+    output("Scanning")
+    else:
+        print("Scanning")
     mynet = getNetwork(wlan)
     if mynet == "notfound":
-        status.update(mynet)
+        output(mynet)
         wlan.active(False)
         return
     count = 0
     if not wlan.isconnected():
-        status.update(mynet)
+        output(mynet)
         wlan.connect(mynet, NETWORKS[mynet])
         while not wlan.isconnected():
             sleep_ms(1000)
-            progress.update(str(count))
+            if progress:
+                progress.update(str(count))
             count += 1
             if count > 15:
-                status.update("Failed")
+                output("Failed")
                 wlan.active(False)
                 return
-    status.update("Connected")
-    progress.update("")
+    output("Connected")
+    if progress:
+        progress.update("")
     sleep_ms(1000)
     try:
         action()
-        status.update("Done")
+        output("Done")
     except Exception as e:
-        status.update("Failed " + str(e))
+        output("Failed " + str(e))
     wlan.active(False)
