@@ -115,6 +115,7 @@ class ArrowButton(Button):
 
 
 class ButtonMan:
+    "Manager for several buttons"
     def __init__(self):
         self.buttons = []
         self.pressed = None

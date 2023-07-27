@@ -1,18 +1,19 @@
 from micropython import const
 from tempos import g, sched, set_local_time, rtc, prtc, settings
 from graphics import rgb, WHITE, BLACK, YELLOW
-from fonts import roboto24, roboto36
+from fonts import roboto18, roboto24, roboto36
 from button import Button, RoundButton, ButtonMan
 from wifi import do_connected_action
 import ntptime
-from widgets import ValueDisplay, Label, SwitchPanel
-
-# time zone adjustment
-dst = False
+from widgets import ValueDisplay, Label, SwitchPanel, Clock
 
 
 def zadjust(incr):
     settings.timezone += incr
+    if settings.timezone > 12:
+        settings.timezone = -11
+    elif settings.timezone < -12:
+        settings.timezone = 11
     return settings.timezone
 
 
@@ -21,13 +22,14 @@ def changedst(v):
 
 
 buttons = ButtonMan()
-zone = ValueDisplay("Time Zone", 2, False, 1, zadjust, buttons)
+zone = ValueDisplay("Time Zone", 15, False, 1, zadjust, buttons, font=roboto24)
 dst = SwitchPanel("Summer Time", 102, settings.dst, changedst, buttons)
 
 # time synchronisation
 
-status = Label(20, 200, 160, 40, roboto24, YELLOW)
-progress = Label(200, 200, 40, 40, roboto24, YELLOW)
+status = Label(20, 200, 160, 40, roboto18, YELLOW)
+progress = Label(200, 200, 40, 40, roboto18, YELLOW)
+clock = Clock()
 
 
 def dosync():
@@ -50,10 +52,12 @@ def app_init():
     status.update("Idle", False)
     progress.update("", False)
     buttons.start()
-
+    clock.draw()
+    sched.setInterval(1000, clock.update)
 
 def app_end():
     settings.save()
     buttons.stop()
+    sched.clearInterval(clock.update)
     g.fill(BLACK)
     set_local_time()

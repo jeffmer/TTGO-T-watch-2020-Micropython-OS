@@ -20,7 +20,7 @@ from fonts import roboto18, roboto24
 import esp32
 import micropython
 import time
-from config import VERSION
+from config import VERSION, summertime, timezone, battery_unit
 import json
 
 
@@ -33,10 +33,11 @@ class Settings:
             self._set = {
                 "bright": bright,
                 "ontime": ontime,
-                "timezone": 0,
+                "timezone": timezone,
                 "clicking": clicking,
                 "buzzing": buzzing,
-                "dst": False,
+                "dst": summertime,
+                "battery_unit": battery_unit,
             }
             self.save()
 
@@ -99,6 +100,15 @@ class Settings:
     @dst.setter
     def dst(self, v):
         self._set["dst"] = v
+        self._change = True
+
+    @property
+    def battery_unit(self):
+        return self._set["battery_unit"]
+
+    @battery_unit.setter
+    def battery_unit(self, v):
+        self._set["battery_unit"] = v
         self._change = True
 
 

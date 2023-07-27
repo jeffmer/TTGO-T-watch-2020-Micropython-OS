@@ -1,6 +1,6 @@
-# Micropython T-watch 2020 V1 & V2 & V3
+# TempOS - Micropython OS for the LilyGO T-Watch 2020
 
-This repository is an implementation entirely in Micropython of a supporting operating system and applications for the Lilygo T-watch 2020. It has been tested for V1 and V2 only, and very recently ported on V3.
+TempOS is an implementation entirely in Micropython of a supporting operating system and applications for the LilyGO T-Watch 2020. It has been tested for V1 and V2, and recently ported to V3.
 
 Video of watch in operation https://youtu.be/TL3tCaUthRQ
 
@@ -28,7 +28,7 @@ An application module is installed by copying its file into one of three folders
 
 ![](images/small/calculator.png)  ![](images/small/weather.png) ![](images/small/puzzle.png)
 
-### V2 only
+### GPS apps (V2 only)
 
 ![](images/small/position.png)  ![](images/small/osmtiles.png) ![](images/small/maps.png)
 
@@ -90,7 +90,7 @@ The central tempos` module instantiates  device drivers:
  
 `tc`  - touch (FT6236), 
 
-`buzzer` =- (DRV2605 - *V2 only*), 
+`buzzer` =- (DRV2605 - *V2 and V3 only*)
 
 In addition, this module encapsulates watch settings, manages putting the watch into light sleep and subsequent reawakening via wrist tilt or double tap and creates the scheduling object `sched`.
 
@@ -145,7 +145,7 @@ The T-watch has 4 megabytes of SPIRAM. To exploit this to make the watch respons
 
 1. From the `firmware`folder install the image `firmware.bin`on the t-watch - to do so you can follow the steps described in the section 'How to firmware flash' below. This image implements GPIO wake up from light sleep and gives access to the full 16M of flash  which the standard generic builds do not.
 
-2. Edit the `config.py` file setting the  version of your T-watch (1, 2 or 3), WIFI network information, open weather map key.
+2. Edit the `config.py` file setting the  version of your T-watch, WIFI network information(s), open weather map key, timezone and summertime.
 
 3. Edit `location.json` with your location - used by the weather app.
 
@@ -156,6 +156,8 @@ The T-watch has 4 megabytes of SPIRAM. To exploit this to make the watch respons
 5. After executing the installation script, the watch should start loading as a `boot.py` file is copied to the T-watch. This contains the line `import loader` which starts the watch software.
 
 If nothing happens on reboot a good first step in debugging is to comment out the line `import loader` in `boot.py` and reset the watch. Then, using `REPL` type `import tempos` which should load all the drivers and - after a delay - display `Loading ...` on the watch screen. 
+
+6. To sync your watch time with the NTP time, navigate via swiping to the time app and click on "Sync with NTP".
 
 ### Battery life
 
@@ -173,9 +175,10 @@ which with light use should give two or three days battery life for V1 watches a
 * *You can read more at [the following adress](https://docs.micropython.org/en/v1.20.0/esp32/tutorial/intro.html#deploying-the-firmware)*
 * Install `esptool` with `python -m pip install esptool` (be careful, some other repos have very outdated versions)
 * Connect your watch via USB to your computer. Make sure to use a proper wire that allows data and not only a charging cable.
-* Find out which port the watch is using (when in doubt, usethe Thonny method)
+* Find out which port the watch is using (when in doubt, use the Thonny method)
 * `python -m esptool --port /dev/ttyACM0 erase_flash`
 * `python -m esptool --port /dev/ttyACM0 --chip esp32 write_flash -z 0x1000 ./firmware/firmware.bin`
+* `python -m esptool --port /dev/ttyACM0 --chip esp32 verify_flash 0x1000 ../firmware/firmware.bin`
 
 ### GUI method (Thonny)
 

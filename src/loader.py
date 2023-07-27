@@ -7,6 +7,7 @@ import clocks
 
 
 class Ring:
+    "class used to handle the switch from one app to another in a ring configuration"
     def __init__(self, parent):
         self.ring = []
         self.names = []
