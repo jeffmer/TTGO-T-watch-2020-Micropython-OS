@@ -23,8 +23,6 @@ def do_connected_action(action, status=None, progress=None):
     else:
         output = print
     output("Scanning")
-    else:
-        print("Scanning")
     mynet = getNetwork(wlan)
     if mynet == "notfound":
         output(mynet)
