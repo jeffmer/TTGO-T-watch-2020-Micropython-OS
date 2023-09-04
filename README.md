@@ -192,3 +192,13 @@ which with light use should give two or three days battery life for V1 watches a
 * Click on `Install`.
 * To show progress, click on the bottom left status message.
 * The whole installation should take on the order of 5 minutes.
+* 
+
+### Notes
+
+**V2** - In the current code,  an SD card must be installed or the watch boot will stall after displaying `Loading....`.
+
+**V3** - To get sound to work on a V3 watch see [this issue](https://github.com/jeffmer/TTGO-T-watch-2020-Micropython-OS/issues/14#issuecomment-1704433152).
+
+I will update code to fix both these issues soon.
+
