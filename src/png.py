@@ -35,6 +35,7 @@ except ImportError:
     import uio as io
 import itertools
 import math
+import io, deflate
 
 # import re
 try:
@@ -42,10 +43,7 @@ try:
 except ImportError:
     import ustruct as struct
 # import warnings
-try:
-    import zlib
-except ImportError:
-    import uzlib as zlib
+
 
 from array import array
 
@@ -92,6 +90,11 @@ class FormatError(Error):
 class ChunkError(FormatError):
     pass
 
+
+def decompress(data):
+    f = io.BytesIO(data)
+    with deflate.DeflateIO(f, deflate.ZLIB,15) as g:
+        return g.read()
 
 class Reader:
     """
@@ -533,7 +536,7 @@ class Reader:
                 # size.
                 # yield array('B', d.decompress(data))
             # yield array('B', d.flush())
-            yield zlib.decompress(alldata)
+            yield decompress(alldata)
 
         self.preamble()
         raw = iterdecomp(iteridat())
