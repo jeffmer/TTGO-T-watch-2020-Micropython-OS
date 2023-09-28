@@ -2,11 +2,16 @@
 
 from tempos import g
 from graphics import rgb, BLACK
-import zlib
+import deflate
 import struct
 import micropython
 from time import ticks_ms, ticks_diff
 
+
+def decompress(data):
+    f = io.BytesIO(data)
+    with deflate.DeflateIO(f, deflate.ZLIB,15) as g:
+        return g.read()
 
 @micropython.viper
 def init_plte(plte, palette):
@@ -99,7 +104,7 @@ class PNG_Tile:
             data = b"".join(
                 chunk_data for chunk_type, chunk_data in chunks if chunk_type == b"IDAT"
             )
-            self._data = zlib.decompress(data)
+            self._data = decompress(data)
         else:
             self._plte = rgb(palette[0], palette[1], palette[2])
             self._data = b"\x00"

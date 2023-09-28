@@ -10,6 +10,7 @@
 # https://forum.micropython.org/viewtopic.php?f=18&t=9368
 
 from time import sleep_ms
+from machine import PWM
 import gc
 import framebuf
 import graphics
@@ -17,11 +18,13 @@ import graphics
 
 class ILI9341(graphics.Graphics):
     # Transpose width & height for landscape mode
-    def __init__(self, spi, cs, dc, rst, height=240, width=320, usd=False):
+    def __init__(self, spi, cs, dc, rst, bl, height=240, width=320):
         self._spi = spi
         self._cs = cs
         self._dc = dc
         self._rst = rst
+        self._bl = PWM(bl)
+        self._bl.freq(1000)
         self.height = height
         self.width = width
         mode = framebuf.RGB565
@@ -47,12 +50,7 @@ class ILI9341(graphics.Graphics):
         self._wcd(b"\xc5", b"\x3E\x28")  # VMCTR1 VCOM ctrl 1
         self._wcd(b"\xc7", b"\x86")  # VMCTR2 VCOM ctrl 2
         # (b'\x88', b'\xe8', b'\x48', b'\x28')[rotation // 90]
-        if self.height > self.width:
-            self._wcd(b"\x36", b"\x48" if usd else b"\x88")  # MADCTL: RGB portrait mode
-        else:
-            self._wcd(
-                b"\x36", b"\x28" if usd else b"\xe8"
-            )  # MADCTL: RGB landscape mode
+        self._wcd(b"\x36", b"\x08")
         self._wcd(b"\x37", b"\x00")  # VSCRSADD Vertical scrolling start address
         self._wcd(
             b"\x3a", b"\x55"
@@ -116,3 +114,9 @@ class ILI9341(graphics.Graphics):
                 self._spi.write(chunk)
                 self._cs(1)
         self.clearMod()
+        
+    # screen brightness function
+    def bright(self, v):
+        v = int(v * 1023)
+        v = 1023 if v > 1023 else 0 if v < 0 else v
+        self._bl.duty(v)

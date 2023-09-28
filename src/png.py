@@ -35,7 +35,7 @@ except ImportError:
     import uio as io
 import itertools
 import math
-import io, deflate
+import deflate
 
 # import re
 try:
