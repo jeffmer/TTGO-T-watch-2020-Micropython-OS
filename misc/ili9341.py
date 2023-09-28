@@ -88,6 +88,12 @@ class ILI9341(graphics.Graphics):
         self._spi.write(data)
         self._cs(1)
 
+    def sleep(self):
+        self._wcmd(b"\x10")
+
+    def wake(self):
+        self._wcmd(b"\x11")
+
     # Time (ESP32 240MHz freq) 32ms landscape.
     # @micropython.native - makes no difference
     def show(self, modonly=True):
