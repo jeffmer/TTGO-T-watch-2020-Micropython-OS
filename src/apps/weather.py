@@ -71,12 +71,13 @@ def centre_text(str, font, x, y, c):
 
 
 def drawDisplay():
-    g.fill_rect(0, 0, 240, 200, BLACK)
-    centre_text(display["place"], roboto36, 120, 4, WHITE)
-    centre_text(display["desc"], roboto18, 120, 40, WHITE)
-    g.fill_rect(140, 70, 96, 96, WHITE)
-    png.drawPNG(displayicon, 140, 70)
-    xoffset = 10
+    g.fill_rect(0, 0, g.width, 200, BLACK)
+    CX = g.width//2
+    centre_text(display["place"], roboto24, CX, 4, WHITE)
+    centre_text(display["desc"], roboto18, CX, 40, WHITE)
+    g.fill_rect(CX+20, 70, 96, 96, WHITE)
+    png.drawPNG(displayicon, CX+20, 70)
+    xoffset = 10 if g.width<=240 else 50
     g.setfontalign(-1, -1)
     g.setfont(roboto36)
     g.text(display["temp"], xoffset, 60, WHITE)
@@ -116,7 +117,7 @@ def get_weather():
     do_connected_action(getupdate, status, progress)
 
 
-update = Button("Update", 160, 200, 60, 30, roboto18)
+update = Button("Update", g.width-80, 200, 60, 30, roboto18)
 buttons = ButtonMan()
 buttons.add(update)
 update.callback(get_weather)

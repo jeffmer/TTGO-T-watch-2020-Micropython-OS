@@ -19,7 +19,9 @@ class PCF8563(Event):
         self.i2c = i2c
         self.rtcp = rtcp
         self.bytebuf = bytearray(1)
-        self.rtcp.irq(self.isr, Pin.IRQ_LOW_LEVEL, wake=SLEEP)
+        if self.rtcp is not None:
+            self.rtcp.irq(self.isr, Pin.IRQ_LOW_LEVEL, wake=SLEEP)
+        self.clear_alarm()
         self.enable_interrupt(True)
 
     def wr_b(self, reg, val):
@@ -63,7 +65,8 @@ class PCF8563(Event):
         self.wr_b(1, status & 0xF7)  # clear Alarm Flag bit 3
         for r in range(9, 13):
             self.wr_b(r, self.rd_b(r) | 0x80)
-        self.rtcp.enable()
+        if self.rtcp is not None:
+            self.rtcp.enable()
 
     def read_alarm(self):
         min_reg = self.rd_b(9)

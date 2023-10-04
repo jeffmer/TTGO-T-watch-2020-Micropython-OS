@@ -9,7 +9,7 @@ from random import randint
 TILESIZE = const(50)
 NSIDE = const(4)
 TILES = const(16)
-TOPX = const(20)
+TOPX = 20 if g.width<=240 else 60
 TOPY = const(0)
 
 
@@ -189,8 +189,8 @@ def actPause():
         touch = None
 
 
-play = Button("Play", 20, 205, 60, 30, roboto18)
-pause = Button("Pause", 160, 205, 60, 30, roboto18)
+play = Button("Play", TOPX, 205, 60, 30, roboto18)
+pause = Button("Pause", TOPX+140, 205, 60, 30, roboto18)
 buttons = ButtonMan()
 buttons.add(pause)
 buttons.add(play)
@@ -199,7 +199,7 @@ pause.callback(actPause)
 
 
 def app_init():
-    g.fill(LIGHTGREY)
+    g.fill(BLACK)
     bd.drawall()
     if bd.ended():
         bd.draw_score()

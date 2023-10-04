@@ -6,8 +6,9 @@ from button import RoundButton, ButtonMan
 from widgets import ValueDisplay
 import math
 
-X = const(120)
-Y = const(120)
+X = g.width//2
+Y = 120
+XOFF = 0 if g.width<=240 else 40
 
 Hours = 0
 Minutes = 0
@@ -19,12 +20,12 @@ colors = [BLACK, GREEN, RED]
 
 
 def to_local(hrs):
-    hrs = hrs + settings.timezone
+    hrs = hrs + settings.timezone + 1 if settings.dst else 0 
     return hrs + 24 if hrs < 0 else hrs - 24 if hrs >= 24 else hrs
 
 
 def to_gmt(hrs):
-    hrs = hrs - settings.timezone
+    hrs = hrs - settings.timezone - 1 if settings.dst else 0
     return hrs + 24 if hrs < 0 else hrs - 24 if hrs >= 24 else hrs
 
 
@@ -73,13 +74,13 @@ def do_clear():
     drawValue()
 
 
-minusH = RoundButton("-", 5, 140, 40, 40, theme=ValueDisplay.theme)
-plusH = RoundButton("+", 5, 60, 40, 40, theme=ValueDisplay.theme)
-minusM = RoundButton("-", 195, 140, 40, 40, theme=ValueDisplay.theme)
-plusM = RoundButton("+", 195, 60, 40, 40, theme=ValueDisplay.theme)
+minusH = RoundButton("-", XOFF+5, 140, 40, 40, theme=ValueDisplay.theme)
+plusH = RoundButton("+", XOFF+5, 60, 40, 40, theme=ValueDisplay.theme)
+minusM = RoundButton("-", XOFF+195, 140, 40, 40, theme=ValueDisplay.theme)
+plusM = RoundButton("+", XOFF+195, 60, 40, 40, theme=ValueDisplay.theme)
 
-setA = RoundButton("Set", 20, 200, 90, 40, theme=ValueDisplay.theme)
-clearA = RoundButton("Clear", 130, 200, 90, 40, theme=ValueDisplay.theme)
+setA = RoundButton("Set", XOFF+20, 200, 90, 40, theme=ValueDisplay.theme)
+clearA = RoundButton("Clear", XOFF+130, 200, 90, 40, theme=ValueDisplay.theme)
 
 buttons = ButtonMan()
 buttons.add(plusH)
@@ -102,7 +103,7 @@ def app_init():
     Hours = to_local(Hours)
     g.setfont(roboto36)
     g.setfontalign(0, -1)
-    g.text("Alarm", 120, 10, WHITE)
+    g.text("Alarm", X, 10, WHITE)
     drawValue()
     buttons.start()
     if AlarmState == 2:

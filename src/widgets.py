@@ -36,13 +36,13 @@ class ValueDisplay:
         self._barorval = barorval
         self._incr = incr
         self._userfn = userfn
-        self._X = const(50)
+        self._X = 50 if g.width<=240 else 90
         self._Y = const(35)
         self._W = const(140)
         self._H = const(40)
         self._B = const(2)
         self._minus = ArrowButton(
-            "-", 0, self._YOFF + self._Y, 50, self._H, theme=self.theme, dir=3
+            "-", self._X-50, self._YOFF + self._Y, 50, self._H, theme=self.theme, dir=3
         )
         self._plus = ArrowButton(
             "+", self._X + self._W, self._YOFF + self._Y, 50, self._H, theme=self.theme, dir=1
@@ -72,14 +72,14 @@ class ValueDisplay:
         g.fill_rect(self._X, self._YOFF + self._Y, self._W, self._H, LIGHTGREY)
         g.fill_rect(self._X + self._B, self._YOFF + self._Y + self._B, self._W - 2 * self._B, self._H - 2 * self._B, GREY)
         g.setfontalign(0, -1)
-        g.text(s, 120, self._YOFF + self._Y + 3, WHITE)
+        g.text(s, g.width//2, self._YOFF + self._Y + 3, WHITE)
         if now:
             g.show()
 
     def drawInit(self, v):
         g.setfont(self._font)
         g.setfontalign(0, -1)
-        g.text(self._title, 120, self._YOFF, WHITE)
+        g.text(self._title, g.width//2, self._YOFF, WHITE)
         if self._barorval:
             self.drawBar(v, False)
         else:
@@ -100,9 +100,11 @@ class SwitchPanel(Button):
     def __init__(self, str, y, initState, onchange, buttonman):
         self._state = initState
         self._str = str
+        self._X = 0 if g.width<=240 else 40
         self._Y = y
         self._change = onchange
-        super().__init__(str, g.width - 60, y, 60, self._HT, None, self.theme)
+        self._W = 240
+        super().__init__(str, self._X+self._W-60, y, 60, self._HT, None, self.theme)
         buttonman.add(self)
 
     def _drawroundrect(self, x, y, w, h, col):
@@ -124,12 +126,12 @@ class SwitchPanel(Button):
 
     def draw(self, now=True):
         if not now:  # draw background
-            self._drawroundrect(0, self._Y, g.width - 1, self._HT, LIGHTGREY)
+            self._drawroundrect(self._X, self._Y, self._W - 1, self._HT, LIGHTGREY)
             g.setfont(self.theme._font)
             y = self._Y + self._HT // 2
             g.setfontalign(-1, 0)
-            g.text(self._str, self._HT // 2, y, self.theme._fg)
-        self._drawswitch(g.width - 60, self._Y + 6, 54, 31, self._state)
+            g.text(self._str, self._X+self._HT // 2, y, self.theme._fg)
+        self._drawswitch(self._X+self._W-60, self._Y + 6, 54, 31, self._state)
         if now:
             g.show()
 

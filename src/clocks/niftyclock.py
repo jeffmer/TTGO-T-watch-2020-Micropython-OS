@@ -3,7 +3,7 @@ from tempos import g, rtc, sched
 from graphics import rgb, WHITE, BLACK, BLUE, CYAN, RED
 from fonts import hugefont, roboto24
 
-X = const(35)
+X = 35 if g.width<=240 else 75
 
 days = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun"]
 months = [

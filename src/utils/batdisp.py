@@ -4,7 +4,7 @@ from graphics import rgb, WHITE, BLACK, GREEN
 from fonts import roboto24, roboto36
 import math
 
-X = const(80)
+X = 80 if g.width<=240 else 120
 Y = const(70)
 
 batpercent = 50
@@ -17,7 +17,7 @@ def drawBat():
     batpercent = v if v > 0 else batpercent
     g.setfont(roboto36)
     g.setfontalign(0, -1)
-    g.text("Battery", 120, 20, WHITE)
+    g.text("Battery", g.width//2, 20, WHITE)
     g.fill_rect(X, Y, 80, 32, WHITE)
     g.fill_rect(X + 4, Y + 4, 72, 24, BLACK)
     g.fill_rect(X + 6, Y + 6, math.ceil(68 * batpercent / 100), 20, GREEN)

@@ -1,5 +1,5 @@
 from micropython import const
-from tempos import tc, prtc, sched, SWIPE_RIGHT, SWIPE_LEFT, SWIPE_DOWN, SWIPE_UP
+from tempos import tc, prtc, sched, pm, SWIPE_RIGHT, SWIPE_LEFT, SWIPE_DOWN, SWIPE_UP
 import os
 import apps
 import utils
@@ -136,11 +136,14 @@ def makesafe(tch):
 
 
 def alarmsafe(dummy):
-    sched.setTimeout(10, jump_to, UTILLEVEL, "alarm")
+    state,_,_ = prtc.read_alarm()
+    if state == 2:
+        sched.setTimeout(10, jump_to, UTILLEVEL, "alarm")
 
 
 touch = tc.addListener(makesafe)
 alarm = prtc.addListener(alarmsafe)
+malarm = pm.addListener(alarmsafe)
 
 rings[level].begin()
 sched.run()

@@ -17,10 +17,10 @@ def drawRotRect(w, r1, r2, angle, c):
     g.poly(x, y, coord, c, True, a)
 
 
-W = const(240)
+W = g.width
 H = const(240)
 R = const(120)
-CX = const(120)
+CX = W//2
 CY = const(120)
 GREY = rgb(220, 220, 220)
 months = [

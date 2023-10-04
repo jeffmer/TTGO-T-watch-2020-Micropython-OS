@@ -9,7 +9,7 @@ OWP_KEY = "-----------your key----------"
 
 # timezone you're in and summertime
 timezone = 0  # any int
-summertime = False  # False or True
+summertime = True  # False or True
 
 # unit of the battery in the top widget
 battery_unit = "volt"  # either "percent" of "volt"

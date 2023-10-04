@@ -11,6 +11,8 @@ LIGHTGREY = rgb(200, 200, 200)
 nu_theme = Theme(WHITE, LIGHTGREY, GREEN, LIGHTGREY, roboto24)
 op_theme = Theme(WHITE, ORANGE, GREEN, ORANGE, roboto24)
 
+DX = 4 if g.width<=240 else 44
+CY = g.width//2
 
 def get_theme(s):
     global nu_theme, op_theme
@@ -29,10 +31,10 @@ output = ""
 
 def drawOutput(now=True):
     global output
-    g.fill_rect(4, 0, g.width - 8, 40, GREY)
+    g.fill_rect(DX, 0, 232, 40, GREY)
     g.setfont(roboto36)
     g.setfontalign(0, -1)
-    g.text(output, 120, 2, WHITE)
+    g.text(output, CY, 2, WHITE)
     if now:
         g.show()
 
@@ -54,7 +56,7 @@ def action(s):
 for j in range(0, 4):
     for i in range(0, 5):
         s = fields[j * 5 + i]
-        b = RoundButton(s, i * 48 + 4, (j + 1) * 48 + 4, 40, 40, theme=get_theme(s))
+        b = RoundButton(s, i * 48 + DX, (j + 1) * 48 + 4, 40, 40, theme=get_theme(s))
         buttons.add(b)
         b.callback(action, s)
 
