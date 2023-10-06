@@ -119,8 +119,11 @@ class AXP192(Event):
         self.setGPIO4(True)
         sleep_ms(100)
         
+    def setLED(self,v):
+        self.setGPIO1(not v)
+        
     def init(self):
-        self.setGPIO1(True) # turn of led
+        self.setGPIO1(True) # turn off led
         self.setGPIO2(False) # disable amplifier
         self.setExtenCtl(False) # disable 5v boost 
         self.setLDO2voltage(3300)

@@ -10,8 +10,11 @@ from urequests import request
 from config import OWP_KEY
 from config import VERSION
 
-if VERSION == 2:
+try:
     from apps.maps import get_location
+    HASMAPS=True
+except:
+    HASMAPS=False
 
 status = Label(0, 200, 100, 30, roboto18, YELLOW)
 progress = Label(110, 200, 30, 30, roboto18, YELLOW)
@@ -91,7 +94,7 @@ def drawDisplay():
 
 
 def getupdate():
-    if VERSION == 2:
+    if HASMAPS:
         loc, _ = get_location()
     else:
         home = json.loads(open("location.json").read())
