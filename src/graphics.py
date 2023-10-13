@@ -2,6 +2,7 @@ import framebuf
 import micropython
 from fonts import glcdfont
 import math
+from config import COLOR_BITS
 
 
 @micropython.viper
@@ -12,21 +13,46 @@ def rgb(r: int, g: int, b: int) -> int:
     ILI9341 expects RGB order"""
     return (r & 0xF8) | (g & 0xE0) >> 5 | (g & 0x1C) << 11 | (b & 0xF8) << 5
 
+def makecolor(lut,index,r,g,b):
+    c = rgb(r, g, b)
+    if not 0 <= index <= 15:
+        raise ValueError('Colour number must be 0..15')
+    lut[index*2] = c & 0xff
+    lut[index*2 + 1] = c >> 8
+    return index
 
-BLACK = rgb(0, 0, 0)
-GREEN = rgb(0, 255, 0)
-RED = rgb(255, 0, 0)
-LIGHTRED = rgb(140, 0, 0)
-BLUE = rgb(0, 0, 255)
-YELLOW = rgb(255, 255, 0)
-GREY = rgb(100, 100, 100)
-LIGHTGREY = rgb(200, 200, 200)
-MAGENTA = rgb(255, 0, 255)
-CYAN = rgb(0, 255, 255)
-LIGHTGREEN = rgb(0, 100, 0)
-DARKGREEN = rgb(0, 80, 0)
-DARKBLUE = rgb(0, 0, 90)
-WHITE = rgb(255, 255, 255)
+if COLOR_BITS ==16:
+    BLACK = rgb(0, 0, 0)
+    GREEN = rgb(0, 255, 0)
+    RED = rgb(255, 0, 0)
+    LIGHTRED = rgb(140, 0, 0)
+    BLUE = rgb(0, 0, 255)
+    YELLOW = rgb(255, 255, 0)
+    GREY = rgb(100, 100, 100)
+    LIGHTGREY = rgb(200, 200, 200)
+    MAGENTA = rgb(255, 0, 255)
+    CYAN = rgb(0, 255, 255)
+    LIGHTGREEN = rgb(0, 100, 0)
+    DARKGREEN = rgb(0, 80, 0)
+    DARKBLUE = rgb(0, 0, 90)
+    WHITE = rgb(255, 255, 255)
+else:
+    COLOR_LUT = bytearray(32)
+    BLACK = makecolor(COLOR_LUT, 0, 0, 0, 0)
+    GREEN = makecolor(COLOR_LUT, 1, 0, 255, 0)
+    RED = makecolor(COLOR_LUT, 2, 255, 0, 0)
+    LIGHTRED = makecolor(COLOR_LUT, 3, 140, 0, 0)
+    BLUE = makecolor(COLOR_LUT, 4, 0, 0, 255)
+    YELLOW = makecolor(COLOR_LUT, 5, 255, 255, 0)
+    GREY = makecolor(COLOR_LUT, 6, 100, 100, 100)
+    LIGHTGREY = makecolor(COLOR_LUT, 7, 200, 200, 200)
+    MAGENTA = makecolor(COLOR_LUT, 8, 255, 0, 255)
+    CYAN = makecolor(COLOR_LUT, 9, 0, 255, 255)
+    LIGHTGREEN = makecolor(COLOR_LUT, 10, 0, 100, 0)
+    DARKGREEN = makecolor(COLOR_LUT, 11, 0, 80, 0)
+    DARKBLUE = makecolor(COLOR_LUT, 12, 0, 0, 90)
+    WHITE = makecolor(COLOR_LUT, 15, 255, 255, 255)
+
 
 
 def rotate(coord, theta):

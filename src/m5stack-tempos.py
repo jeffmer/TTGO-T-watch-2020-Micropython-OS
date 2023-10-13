@@ -23,7 +23,7 @@ import json
 
 
 class Settings:
-    def __init__(self, bright=0.3, ontime=20, timezone=0,clicking=False, buzzing=True,summertime=True,battery_unit="Volt"):
+    def __init__(self, bright=0.3, ontime=20, timezone=0,clicking=False, buzzing=True, flashing=True, summertime=True,battery_unit="Volt"):
         self._change = False
         try:
             self._set = json.loads(open("settings.json").read())
@@ -34,6 +34,7 @@ class Settings:
                 "timezone": timezone,
                 "clicking": clicking,
                 "buzzing": buzzing,
+                "flashing": flashing,
                 "dst": summertime,
                 "battery_unit": battery_unit,
             }
@@ -90,6 +91,15 @@ class Settings:
     def buzzing(self, v):
         self._set["buzzing"] = v
         self._change = True
+        
+    @property
+    def flashing(self):
+        return self._set["flashing"]
+
+    @flashing.setter
+    def flashing(self, v):
+        self._set["flashing"] = v
+        self._change = True
 
     @property
     def dst(self):
@@ -134,6 +144,17 @@ g.text("Loading...", 40, 110)
 g.show()
 pm.bright(0.5)
 
+#SD card
+try:
+    import sdcard, os
+    sd = sdcard.SDCard(spi, Pin(4,))
+    vfs = os.VfsFat(sd)
+    os.mount(vfs, "/sd")
+except Exception as e:
+    spi.init(baudrate=32000000) # reset slow spi rate used by SDCard
+    g.text("NO SD Card", 40,130)
+    g.show()
+    
 # persistent real time clock
 prtc = PCF8563(I2C1, None)  # GM time persistent clock
 rtc = RTC()  # local clock
@@ -193,18 +214,25 @@ dosleep = sched.setInterval(1000, dolightsleep, sched)
 
 
 # buzzer
-
 class Buzzer:
-    def __init__(self, motorfn, period=500, duty=40):
+    def __init__(self, motorfn, flashfn, period=500, duty=40):
         self._motor = motorfn
+        self._flash = flashfn
         self._ticker = None
         self._period = period
         self._duty = duty
 
-    def buzz(self):
-        self._motor(True)
-        sched.setTimeout(self._period * self._duty // 100, self._motor, False)
 
+    def both(self,v):
+        if settings.buzzing:
+            self._motor(v)
+        if settings.flashing:
+            self._flash(v)
+        
+    def buzzflash(self):
+        self.both(True)
+        sched.setTimeout(self._period * self._duty // 100, self.both, False)
+        
     def click(self):
         if settings.clicking:
             if VERSION == 1 or VERSION == 3:
@@ -213,16 +241,16 @@ class Buzzer:
                 self._motor(False)
             elif VERSION == 2:
                 drv.click()
-
+        
     def start(self):
-        if settings.buzzing:
-            self._ticker = sched.setInterval(self._period, self.buzz)
+        if settings.buzzing or settings.flashing:
+            self._ticker = sched.setInterval(self._period, self.buzzflash)
 
     def stop(self):
         if self._ticker is not None:
             sched.clearInterval(self._ticker)
 
 
-buzzer = Buzzer(motor)
+buzzer = Buzzer(motor,pm.setLED)
 
 
