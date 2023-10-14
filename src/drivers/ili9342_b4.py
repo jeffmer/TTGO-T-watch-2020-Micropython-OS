@@ -9,6 +9,7 @@
 # Also this forum thread with ideas from @minyiky:
 # https://forum.micropython.org/viewtopic.php?f=18&t=9368
 
+from machine import PWM
 from time import sleep_ms
 import gc
 import framebuf
@@ -27,11 +28,12 @@ def _lcopy(dest:ptr16, source:ptr8, lut:ptr16, length:int):
 
 class ILI9341(Graphics):
     # Transpose width & height for landscape mode
-    def __init__(self, spi, cs, dc, rst,height=240, width=320, inverse=False):
+    def __init__(self, spi, cs, dc, rst, bl, height=240, width=320, inverse=False):
         self._spi = spi
         self._cs = cs
         self._dc = dc
         self._rst = rst
+        self._bl = PWM(bl)
         self.height = height
         self.width = width
         mode = framebuf.GS4_HMSB
@@ -89,8 +91,8 @@ class ILI9341(Graphics):
         xs, xe, ys, ye = self.getMod()
         if xe < xs:
             return
-        xs = (xs//2)*2
-        xe = (xe//2)*2+1
+        xs = xs & 0xFFFE  
+        xe = xe | 1
         clut = self._lut
         wd = self.width // 2
         wdc = (xe-xs)//2 + 1
@@ -108,4 +110,7 @@ class ILI9341(Graphics):
         self._cs(1)
         self.clearMod()
 
- 
+    def bright(self,v):
+        v = int(v * 1023)
+        v = 1023 if v > 1023 else 0 if v < 0 else v
+        self._bl.duty(v)
