@@ -33,7 +33,7 @@ class ILI9341(Graphics):
         self._cs = cs
         self._dc = dc
         self._rst = rst
-        self._bl = PWM(bl)
+        self._bl = PWM(bl,duty=0)
         self.height = height
         self.width = width
         mode = framebuf.GS4_HMSB
