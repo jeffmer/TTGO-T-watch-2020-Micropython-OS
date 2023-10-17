@@ -1,6 +1,8 @@
-from tempos import g, tc, pm, sched, gps, TOUCH_DOWN, TOUCH_UP, BLACK, WHITE
+from tempos import g, tc, pm, sched, TOUCH_DOWN, TOUCH_UP, BLACK, WHITE
 from fonts import roboto36
-from graphics import RED, CYAN
+from fonts import roboto24
+from button import Theme, RoundButton, ButtonMan
+from graphics import rgb, RED, CYAN, GREEN
 import machine
 from micropython import const
 from pngtile import PNG_Tile
@@ -10,11 +12,17 @@ import json
 from time import ticks_ms, ticks_diff
 
 
+LIGHTGREY = rgb(200, 200, 200)
+z_theme = Theme(WHITE, LIGHTGREY, GREEN, LIGHTGREY, roboto24)
+
+ZOOM = 12
+SHIFT = 40 if g.width>240 else 0
+
 def disp_level(ll):
     global g
     g.setfont(roboto36)
     g.setfontalign(-1, -1)
-    g.text(str(ll), 180, 10, WHITE)
+    g.text(str(ll), 180+SHIFT, 10, WHITE)
     g.show()
 
 
@@ -34,7 +42,7 @@ def num2deg(xtile, ytile, zoom):
     return (lat_deg, lon_deg)
 
 
-ZOOM = 12
+
 
 
 def get_px(tile, loc):
@@ -134,7 +142,7 @@ class Marker:
                     y = px[1] + j * 256 - ty
                     if x > 5 and x < 234 and y > 3 and x < 236:
                         if doit:
-                            g.ellipse(x, y, 5, 5, self._col, True)
+                            g.ellipse(x+SHIFT, y, 5, 5, self._col, True)
                         return True
                     else:
                         return False
@@ -156,7 +164,7 @@ def drawArrow(dx, dy):
         Arrow = array.array(
             "h", [0, -30, 15, -15, 5, -15, 5, 30, -5, 30, -5, -15, -15, -15]
         )
-        g.poly(120, 120, Arrow, WHITE, True, a * math.pi / 180)
+        g.poly(120+SHIFT, 120, Arrow, WHITE, True, a * math.pi / 180)
     g.show()
 
 
@@ -185,35 +193,47 @@ def ontouch(tch):
     def outside(v):
         return v - 120 < 0 or v + 120 >= 512
 
-    z = ZOOM
     if tch[2] == TOUCH_DOWN:
         x = tch[0]
         y = tch[1]
     elif tch[2] == TOUCH_UP:
-        dx = dr(x)
+        if x<60 or x>260:
+            return
+        dx = dr(x-SHIFT)
         dy = dr(y)
         newx = PX[0] + 60 * dx
         newy = PX[1] + 60 * dy
         if dx == 0 and dy == 0:  # zoom
-            if x > 120:
-                z += 2
-                z = 16 if z > 16 else z
-            else:
-                z -= 2
-                z = 2 if z < 2 else z
-            disp_level(z)
-        else:
-            drawArrow(dx, dy)
-        if outside(newx) or outside(newy) or not ZOOM == z:
+            return
+        drawArrow(dx, dy)
+        if outside(newx) or outside(newy):  
             LOCATION = pixels_to_loc(newx, newy)
-            ZOOM = z
             TILE = deg2num(LOCATION[0], LOCATION[1], ZOOM)
             PX = get_px(TILE, LOCATION)
             get_tiles()
         else:
             PX = (newx, newy)
         drawmap(PX[0], PX[1])
-
+        
+def zoom(iv):
+    global PX, TILE, LOCATION, ZOOM
+    z = ZOOM+iv
+    newz = z if z<=18 and z>=2 else ZOOM
+    disp_level(newz)
+    if newz != ZOOM:
+        ZOOM=newz
+        TILE = deg2num(LOCATION[0], LOCATION[1], ZOOM)
+        PX = get_px(TILE, LOCATION)
+        get_tiles()
+        drawmap(PX[0], PX[1])
+        
+minusZ = RoundButton("-", 0, 100, 40, 40, theme=z_theme)
+plusZ = RoundButton("+", 280, 100, 40, 40, theme=z_theme)
+buttons = ButtonMan()
+buttons.add(plusZ)
+buttons.add(minusZ)
+minusZ.callback(zoom,-2)
+plusZ.callback(zoom,2)
 
 def safecall(tch):
     sched.setTimeout(10, ontouch, tch)
@@ -233,17 +253,18 @@ def onGPS(p):
 listener = None
 gpslistener = None
 
-
 def app_init():
     global listener, gpslistener
     refresh_tiles()
     drawmap(PX[0], PX[1])
     listener = tc.addListener(safecall)
-    gpslistener = gps.addListener(onGPS)
+    buttons.start()
+#    gpslistener = gps.addListener(onGPS)
 
 
 def app_end():
     global listener, gpslistener
+    buttons.stop()
     if listener is not None:
         tc.removeListener(listener)
     if gpslistener is not None:

@@ -6,7 +6,13 @@ import deflate
 import struct
 import micropython
 from time import ticks_ms, ticks_diff
+try:
+    import io
+except ImportError:
+    import uio as io
+from config import TILE_FILE
 
+SHIFT = 40 if g.width>240 else 0
 
 def decompress(data):
     f = io.BytesIO(data)
@@ -21,7 +27,6 @@ def init_plte(plte, palette):
         col = int(rgb(pal[i * 3], pal[i * 3 + 1], pal[i * 3 + 2]))
         po[i * 2 + 1] = col >> 8
         plte[i * 2] = col
-
 
 class PNG_Tile:
     def __init__(self, tilex, tiley, zoom, stx, sty):
@@ -52,13 +57,12 @@ class PNG_Tile:
             chunk_data = f.read(chunk_length)
             (chunk_expected_crc,) = struct.unpack(">I", f.read(4))
             return chunk_type, chunk_data
-
         # now = ticks_ms()
         # open file and check signature
         try:
             f = open(
-                "/sd/tiles/{}/{}/{}.png".format(
-                    self._tile[2], self._tile[0], self._tile[1]
+                "/sd/{}/{}/{}/{}.png".format(
+                    TILE_FILE, self._tile[2], self._tile[0], self._tile[1]
                 ),
                 "rb",
             )
@@ -93,19 +97,21 @@ class PNG_Tile:
             raise Exception("only bit depth of 1 or 8")
         if interlacem != 0:
             raise Exception("no interlacing support")
-        # get palette
-        chunk_type, palette = chunks[1]
-        if not chunk_type == b"PLTE":
-            raise Exception("Palette chunk expected")
         if bitd == 8:
-            self._plte = bytearray(512)
-            self._init_plte(palette)
-            # get image data
-            data = b"".join(
-                chunk_data for chunk_type, chunk_data in chunks if chunk_type == b"IDAT"
-            )
+            data = b""
+            for chunk_type, chunk_data in chunks:
+                if chunk_type == b"PLTE":
+                    # get image data
+                    self._plte = bytearray(512)
+                    self._init_plte(chunk_data)
+                elif chunk_type == b"IDAT":
+                    # get image data
+                    data = data+chunk_data;
             self._data = decompress(data)
         else:
+            chunk_type, palette = chunks[1]
+            if not chunk_type == b"PLTE":
+                raise Exception("Palette chunk expected")
             self._plte = rgb(palette[0], palette[1], palette[2])
             self._data = b"\x00"
         # print("Decode Time(ms): ",ticks_diff(ticks_ms(),now))
@@ -113,16 +119,17 @@ class PNG_Tile:
     @micropython.viper
     def _render(self, w: int, h: int):
         baddr = ptr8(g._buf)
+        bwidth = 2 * int(g.width)
         dt = ptr8(self._data)
         pal = ptr8(self._plte)
         rs = int(self._row)
         cs = int(self._col)
-        xs = int(self._x)
+        xs = int(self._x) + int(SHIFT)
         ys = int(self._y)
         for j in range(0, h):
             for i in range(0, w):
                 col = dt[(rs + j) * 257 + i + cs + 1]
-                ind: int = (j + ys) * 480 + (xs + i) * 2
+                ind: int = (j + ys) * bwidth + (xs + i) * 2
                 baddr[ind] = pal[col * 2]
                 baddr[ind + 1] = pal[col * 2 + 1]
 
@@ -149,9 +156,9 @@ class PNG_Tile:
                 self._render(w, h)
                 g.updateMod(x, y, x + w - 1, y + h - 1)
             else:
-                g.fill_rect(x, y, w, h, self._plte)
+                g.fill_rect(x+SHIFT, y, w, h, self._plte)
         else:
-            g.fill_rect(x, y, w, h, BLACK)
+            g.fill_rect(x+SHIFT, y, w, h, BLACK)
         # print("Draw Time(ms): ",ticks_diff(ticks_ms(),now))
 
     def draw_chunk(self, x1, y1, x2, y2):  # coords in 0..511,0..511 space
