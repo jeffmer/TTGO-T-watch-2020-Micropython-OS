@@ -1,5 +1,5 @@
 # version number
-VERSION = 1
+VERSION = 2
 
 # wifi networks
 NETWORKS = {"ssid0": "passwd0", "ssid1": "passwd1", "ssid2": "passwd2"}

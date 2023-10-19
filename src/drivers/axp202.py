@@ -139,6 +139,11 @@ class AXP202(Event):
             self.setPower(EXTEN, 0)
             self.setPower(LD03, 0)
         if VERSION == 3:
+            # Set correct voltage on LDO4 to enable speaker
+            data = self.readByte(0x28) # AXP202_LDO24OUT_VOL
+            data = data & 0xF0
+            data = data | 15 # Set 3300MV
+            self.writeByte(0x28, data)
             self.setPower(EXTEN, 0)
             self.setPower(LD04, 0)
         else:

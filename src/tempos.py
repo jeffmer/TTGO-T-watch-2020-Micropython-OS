@@ -141,6 +141,17 @@ g.text("Loading...", 40, 110)
 g.show()
 g.bright(settings.brightness)
 
+if VERSION == 2:
+    try:
+        import os
+        from machine import SDCard
+        sd = SDCard(slot=3, sck=Pin(14), mosi=Pin(15), miso=Pin(4), cs=Pin(13))
+        vfs = os.VfsFat(sd)
+        os.mount(vfs, "/sd")
+    except Exception as e:
+        spi.init(baudrate=32000000) # reset slow spi used by sdcard
+        g.text("No SD Card", 40,130)
+
 # persistent real time clock
 rtcp = Pin(37, Pin.IN)
 prtc = PCF8563(I2C1, rtcp)  # GM time persistent clock
@@ -255,15 +266,7 @@ buzzer = Buzzer(motor)
 
 # sd card && gps
 if VERSION == 2:
-    import os
-    from machine import SDCard
-
-    sd = SDCard(slot=3, sck=Pin(14), mosi=Pin(15), miso=Pin(4), cs=Pin(13))
-    vfs = os.VfsFat(sd)
-    os.mount(vfs, "/sd")
-
     from drivers.l67k import L67K
-
     gps = L67K()
 
 # TODO: Support PCM mic for VERSION == 3

@@ -5,7 +5,7 @@ from fonts import roboto18, roboto24, roboto36
 from button import Button, RoundButton, ButtonMan
 from wifi import do_connected_action
 import ntptime
-from widgets import ValueDisplay, Label, SwitchPanel, Clock
+from widgets import ValueDisplay, Label, SwitchPanel
 
 
 def zadjust(incr):
@@ -29,7 +29,6 @@ dst = SwitchPanel("Summer Time", 102, settings.dst, changedst, buttons)
 
 status = Label(20, 200, 160, 40, roboto18, YELLOW)
 progress = Label(200, 200, 40, 40, roboto18, YELLOW)
-clock = Clock()
 
 
 def dosync():
@@ -52,12 +51,9 @@ def app_init():
     status.update("Idle", False)
     progress.update("", False)
     buttons.start()
-    clock.draw()
-    sched.setInterval(1000, clock.update)
 
 def app_end():
     settings.save()
     buttons.stop()
-    sched.clearInterval(clock.update)
     g.fill(BLACK)
     set_local_time()

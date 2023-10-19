@@ -147,6 +147,8 @@ class Graphics(framebuf.FrameBuffer):
     def text(self, str, x, y, c=None):
         "write a string of text. Optional color of letters can be specified by c"
         str_w, str_h = self.text_dim(str)
+        if str_w == 0:
+            return 0
         x_a, y_a = self._align
         x = x if x_a == -1 else x - str_w if x_a == 1 else x - str_w // 2
         y = y if y_a == -1 else y - str_h if y_a == 1 else y - str_h // 2

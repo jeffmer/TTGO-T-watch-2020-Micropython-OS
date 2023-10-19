@@ -200,5 +200,5 @@ which with light use should give two or three days battery life for V1 watches a
 
 **V3** - To get sound to work on a V3 watch see [this issue](https://github.com/jeffmer/TTGO-T-watch-2020-Micropython-OS/issues/14#issuecomment-1704433152).
 
-I will update code to fix both these issues soon.
+**Fixed in latest commit 19-10-2023**
 

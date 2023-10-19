@@ -6,6 +6,7 @@ import deflate
 import struct
 import micropython
 from time import ticks_ms, ticks_diff
+import io
 
 
 def decompress(data):
