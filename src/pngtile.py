@@ -104,9 +104,10 @@ class PNG_Tile:
                     # get image data
                     self._plte = bytearray(512)
                     self._init_plte(chunk_data)
-                elif chunk_type == b"IDAT":
-                    # get image data
-                    data = data+chunk_data;
+            # get image data
+            data = b"".join(
+                chunk_data for chunk_type, chunk_data in chunks if chunk_type == b"IDAT"
+            )
             self._data = decompress(data)
         else:
             chunk_type, palette = chunks[1]
