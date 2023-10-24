@@ -36,32 +36,47 @@ class ST7302(Graphics):
         self._screen = memoryview(self.screenbuf)
         # Hardware reset
         self._rst(0)
-        sleep_ms(200)
-        self._rst(1)
         sleep_ms(100)
+        self._rst(1)
+        sleep_ms(150)
         self._wcd(b"\xeb",b"\x02") # Enable OTP
         self._wcd(b"\xd7",b"\68")  # OTP Load Controlxs, xe, ys, ye,
-        self._wcd(b"\xb4",b"\xa5\x66\x01\x00\x00\x40\x01\x00\x00\x40") #GateEQSettingHPMEQLPMEQ
+        self._wcd(b"\xEB",b"\x02")# Enable NVM
+        self._wcd(b"\xD7",b"\x68")# NVM Load Control
+        self._wcd(b"\xD1",b"\x01")# Booster enable
+        self._wcd(b"\xC0",b"\x80") # Gate Voltage Setting VGH=12V; VGL=-5V
+        self._wcd(b"\xC1",b"\x28\x28\x28\x28\x14\x00")  # Source Voltage Control 1
+        self._wcmd(b"\xC2")      # Source Voltage Control 2
+        self._wcd(b"\xCB",b"\x14") # VCOMH Voltage Setting 4V
+        self._wcd(b"\xB4",b"\xE5\x77\xF1\xFF\xFF\x4F\xF1\xFF\xFF\x4F")
+        self._wcd(b"\xB2",b"\x01\x04") # frame rate 32Hz high power 4 Hz low power
         self._wcmd(b"\x11")        # sleep out
         sleep_ms(100)
+        self._wcd("b\xC7","b\xA6\xE9") # OSC Enable
         self._wcd(b"\x36",b"\x20") # Memory Data Access Control
-        self._wcmd(b"\x39")        # Low power
+        self._wcd(b"\xD0",b"\x1F") # Unknown command??
         self._wcd(b"\x3a",b"\x11") # DataFormatSelect4writefor24bit
         self._wcd(b"\xb0",b"\x64") # Duty setting 250duty/4=63
         self._wcd(b"\xb8",b"\x09") # Panel Setting Frame inversion
-        self._wcmd(b"\x29")         # Display on
+        self._wcmd(b"\x29")        # Display on
+        self._wcd(b"\xB9",b"\0xE3")  # Clear RAM
+        sleep_ms(100)
+        self._wcd(b"\xB9",b"\x23")  # Source Setting Off
+        self._wcmd(b"\x39")         # Low Power
+        sleep_ms(100)
+
       
     # Write a command.
     def _wcmd(self, buf):
-        self._dc(0)
         self._cs(0)
+        self._dc(0)
         self._spi.write(buf)
         self._cs(1)
 
     # Write a command followed by a data arg.
     def _wcd(self, command, data):
-        self._dc(0)
         self._cs(0)
+        self._dc(0)
         self._spi.write(command)
         self._dc(1)
         self._spi.write(data)
