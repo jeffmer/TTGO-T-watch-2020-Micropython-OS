@@ -1,4 +1,4 @@
-from tempos import g, tc, sched, TOUCH_DOWN, TOUCH_UP, buzzer
+from tempos import g, tc, sched, TOUCH_DOWN, TOUCH_UP
 from graphics import BLUE, GREEN, WHITE, BLACK
 from fonts import roboto24
 import array
@@ -48,7 +48,6 @@ class Button:
     def press(self):
         self.pressed = True
         self.draw()
-        buzzer.click()
 
     def clear(self):
         self.pressed = False
@@ -120,7 +119,6 @@ class ButtonMan:
         self.buttons = []
         self.pressed = None
         self.listener = None
-        self.clicker = buzzer.click
 
     def start(self):
         self.drawAll()
@@ -145,7 +143,6 @@ class ButtonMan:
                 if b.istouched(tch[0], tch[1]):
                     self.pressed = b
                     b.press()
-                    self.clicker()
         elif self.pressed is not None:
             if tch[2] == TOUCH_UP:
                 self.pressed.release()

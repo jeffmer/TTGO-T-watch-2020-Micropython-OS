@@ -16,7 +16,7 @@ import framebuf
 import graphics
 
 XOFF = const(0)
-YOFF = const(80)
+YOFF = const(0)
 INVERSE = const(1)
 
 
@@ -45,7 +45,7 @@ class ST7789(graphics.Graphics):
         self._wcmd(b"\x11")  # SLPOUT
         sleep_ms(50)
         # MADCTL: Set Memory access control (directions), 1 arg: row addr/col addr, bottom to top refresh
-        self._wcd(b"\x36", b"\x08")
+        self._wcd(b"\x36", b"\xC8")
         # COLMOD: Set color mode, 1 arg, no delay: 16-bit color
         self._wcd(b"\x3a", b"\x05")
         # PORCTRL: Porch control

@@ -15,5 +15,5 @@ summertime = True  # False or True
 battery_unit = "volt"  # either "percent" of "volt"
 
 # limit memory so use 4 bit colors
-COLOR_BITS = 4
-#COLOR_BITS = 16
+COLOR_BITS = 16
+#COLOR_BITS = 4
