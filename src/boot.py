@@ -16,10 +16,7 @@ bat = Pin(2,Pin.OUT,value=1)
 pwr = Pin(5,Pin.IN)
 pwr.irq(onpress, Pin.IRQ_FALLING)
 
-def onplus(t):
-    global sched
-    pass
-#    sched.stop()
+ 
     
 plus = Pin(4,Pin.IN)
 plus.irq(onplus, Pin.IRQ_FALLING)

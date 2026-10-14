@@ -1,53 +1,64 @@
 from time import sleep_ms
 import network
-from config import NETWORKS
+from config import SSID,PWD
+from temopos import sched
+
+_wlan = network.WLAN(network.STA_IF)
+_lazyTO = None
 
 
-def getNetwork(wlan):
-    "finds which surounding wifi networks can be logged into using the config.py file"
-    accpts = wlan.scan()
-    for a in accpts:
-        name = str(a[0], "UTF-8")
-        for n in NETWORKS.keys():
-            if n == name:
-                return n
-    return "notfound"
-
-
-def do_connected_action(action, status=None, progress=None):
-    "connect to internet then execute fn 'action'. Write output to status and progress Labels. If status is None, output will be printed instead."
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    if status:
-        output = status.update
-    else:
-        output = print
-    output("Scanning")
-    mynet = getNetwork(wlan)
-    if mynet == "notfound":
-        output(mynet)
-        wlan.active(False)
-        return
+def connect(status=None, progress=None):
+    global _lazyTO
+    "Connect wlan to the configured network. Returns True on success."
+    if _wlan.isconnected():
+        if not _lazyTO is None:
+            sched.clearTimeout(_lazyTO)
+            _lazyTO = None
+        return True
+    output = status.update if status else print
+    _wlan.active(True)
+    output("Connecting")
     count = 0
-    if not wlan.isconnected():
-        output(mynet)
-        wlan.connect(mynet, NETWORKS[mynet])
-        while not wlan.isconnected():
+    if not _wlan.isconnected():
+        output(SSID)
+        _wlan.connect(SSID, PWD)
+        while not _wlan.isconnected():
             sleep_ms(1000)
             if progress:
                 progress.update(str(count))
             count += 1
             if count > 15:
                 output("Failed")
-                wlan.active(False)
-                return
+                _wlan.active(False)
+                return False
     output("Connected")
     if progress:
         progress.update("")
-    sleep_ms(1000)
+    return True
+
+
+def disconnect():
+    global _lazyTO
+    _wlan.active(False)
+    _lazyTO = None
+
+def lazy_disconnect():
+    global _lazyTO
+    _lazyTO = sched.setTimeout(10000,disconnect)
+
+
+def do_connected(action, status=None, progress=None):
+    "execute fn 'action' on an established connection. Write output to status Label, or print if None."
+    output = status.update if status else print
     try:
         action()
         output("Done")
     except Exception as e:
         output("Failed " + str(e))
-    wlan.active(False)
+
+
+def do_connected_action(action, status=None, progress=None):
+    if not connect(status, progress):
+        return
+    do_connected(action, status, progress)
+    lazy_disconnect()

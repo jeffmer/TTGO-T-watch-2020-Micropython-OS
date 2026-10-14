@@ -1,4 +1,4 @@
-from machine import Pin, SPI, I2C, RTC, Timer, lightsleep, wake_reason, SLEEP
+from machine import Pin, SPI, I2C, RTC, Timer, lightsleep, wake_reason, SLEEP, freq
 from drivers.st7789 import ST7789
 from drivers.cst816t import (
     CST816,
@@ -9,7 +9,7 @@ from drivers.cst816t import (
     TOUCH_DOWN,
     TOUCH_UP,
 )
-
+from drivers.switch import Switch
 from scheduler import Scheduler
 from graphics import WHITE, BLACK
 from time import sleep_ms, ticks_us, ticks_diff
@@ -17,24 +17,25 @@ from fonts import roboto18, roboto24
 import esp32
 import micropython
 import time
-from config import VERSION, summertime, timezone, battery_unit
+from config import VERSION, summertime, timezone
 import json
 
 
 class Settings:
-    def __init__(self, bright=0.3, ontime=20, clicking=False, buzzing=True):
+    def __init__(self, bright=0.3, radius=10, ontime=20, clicking=False, buzzing=True):
         self._change = False
         try:
             self._set = json.loads(open("settings.json").read())
         except:
             self._set = {
                 "bright": bright,
+                "radius": radius,
                 "ontime": ontime,
                 "timezone": timezone,
                 "clicking": clicking,
                 "buzzing": buzzing,
                 "dst": summertime,
-                "battery_unit": battery_unit,
+                "secs_per_hour_err": 0,
             }
             self.save()
 
@@ -52,6 +53,15 @@ class Settings:
     @brightness.setter
     def brightness(self, br):
         self._set["bright"] = 0.1 if br < 0.1 else 1.0 if br > 1.0 else br
+        self._change = True
+        
+    @property
+    def radius(self):
+        return self._set["radius"]
+
+    @radius.setter
+    def radius(self, br):
+        self._set["radius"] = 5 if br < 5 else 120 if br > 120 else br
         self._change = True
 
     @property
@@ -100,19 +110,20 @@ class Settings:
         self._change = True
 
     @property
-    def battery_unit(self):
-        return self._set["battery_unit"]
+    def secs_per_hour_err(self):
+        return self._set["secs_per_hour_err"]
 
-    @battery_unit.setter
-    def battery_unit(self, v):
-        self._set["battery_unit"] = v
+    @secs_per_hour_err.setter
+    def secs_per_hour_err(self, v):
+        self._set["secs_per_hour_err"] = v
         self._change = True
 
 
 settings = Settings()
 
-# power management
+# plus button
 
+sw = Switch(4)
 
 # lcd display
 spi = SPI(2, 32000000, sck=Pin(38), mosi=Pin(39), miso=None)
@@ -126,6 +137,14 @@ g.bright(settings.brightness)
 
 rtc = RTC()  # local clock
 
+# touch controller
+tprst = Pin(47, Pin.OUT, value=1)
+p_scl = Pin(41)
+p_sda = Pin(42)
+I2C0 = I2C(0, scl=p_scl, sda=p_sda, freq=400000)
+tp = Pin(48, Pin.IN)
+
+tc = CST816(I2C0, tp,tprst)
 
 def set_local_time():
     epoch_secs = time.time()
@@ -133,56 +152,70 @@ def set_local_time():
         epoch_secs + settings.timezone * 3600 + (3600 if settings.dst else 0)
     )
     rtc.datetime((tm[0], tm[1], tm[2], tm[6], tm[3], tm[4], tm[5], 0))
+    
+def correct_local_time(err):
+    epoch_secs = time.time()
+    tm = time.gmtime(
+        epoch_secs - err
+    )
+    rtc.datetime((tm[0], tm[1], tm[2], tm[6], tm[3], tm[4], tm[5], 0))
 
-
-set_local_time()
-
-# touch controller
-tprst = Pin(47, Pin.OUT, value=1)
-I2C0 = I2C(0, scl=Pin(41), sda=Pin(42), freq=400000)
-tp = Pin(48, Pin.IN)
-tc = CST816(I2C0, tp,tprst)
+sched = Scheduler()
 
 count = settings.ontime  # awake time
 
+_cansleep = True
+
+sleep_start = 0
+
+def recalibrateRTC():
+    global sleep_start
+    sleep_end = time.time()
+    e = int(((sleep_end - sleep_start)*settings.secs_per_hour_err)/3600)
+    correct_local_time(e)
 
 def touched(tch):
     global count
     count = settings.ontime
 
-sched = Scheduler()
-
-def onplus(t):
-    global sched
-    sched.stop()
-    
-plus = Pin(4,Pin.IN)
-plus.irq(onplus, Pin.IRQ_FALLING)
-
 
 tc.addListener(touched)
 
-
+pactrl = Pin(7, Pin.OUT, value=0) # make sure power amp is off
 
 def dolightsleep(e):
-    global count
+    global count, sleep_start
     count -= 1
     if count > 0:
         return
+    sleep_start = time.time()
+    tc.hibernate()
     g.sleep()
     g.bright(0)
-    tc.hibernate()
     sleep_ms(100)
     lightsleep()
     sleep_ms(100)
-    tc.reset()
     count = settings.ontime
+    recalibrateRTC()
     g.wake()
+    tc.reset()
     g.bright(settings.brightness)
 
+dosleep = None
 
+def enable_sleep():
+    global dosleep
+    dosleep = sched.setInterval(1000, dolightsleep, sched)
 
-dosleep = sched.setInterval(1000, dolightsleep, sched)
+def disable_sleep():
+    global dosleep
+    sched.clearInterval(dosleep)
+    
+
+enable_sleep()
+
+freq(160000000)
+
 
 
 """

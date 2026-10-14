@@ -1,6 +1,6 @@
 import time
 from micropython import const
-from tempos import g, pm, sched, settings
+from tempos import g, sched, settings
 from graphics import rgb, WHITE, BLACK, YELLOW, GREY, GREEN, LIGHTGREY, RED
 from fonts import roboto18, roboto24, roboto36
 from button import ArrowButton, ButtonMan, Theme, Button
@@ -142,103 +142,5 @@ class SwitchPanel(Button):
         if self._change is not None:
             self._change(self._state)
 
-class Clock:
-    "clock appearing at the top of the screen"
-    def __init__(self, enabled=True):
-        self.on_screen = None
-        self.enabled = enabled
-
-    def draw(self):
-        """Redraw the clock from scratch.
-
-        The container is required to clear the canvas prior to the redraw
-        and the clock is only drawn if it is enabled.
-        """
-        self.on_screen = None
-        self.update()
-
-    def update(self):
-        """Update the clock widget if needed.
-
-        This is a lazy update that only redraws if the time has changes
-        since the last call *and* the clock is enabled.
-
-        :returns: An time tuple if the time has changed since the last call,
-                  None otherwise.
-        """
-        now = time.localtime()
-        on_screen = self.on_screen
-
-        if on_screen and on_screen == now:
-            return None
-
-        if self.enabled and (not on_screen
-                or now[4] != on_screen[4] or now[3] != on_screen[3]):
-            t1 = '{:02}:{:02}'.format(now[3], now[4])
-
-            g.setfont(roboto18)
-            g.setcolor(WHITE)
-            g.text(t1, x=100, y=0)
-
-        self.on_screen = now
-        g.show()
 
 
-class BatteryMeter:
-    """Battery meter widget.
-
-    A simple battery meter with a charging indicator, will draw at the
-    top-right of the display.
-    """
-    def __init__(self):
-        self.level = -2
-
-    def draw(self):
-        """Draw from meter (from scratch)."""
-        self.level = -2
-        self.update()
-
-    def update(self):
-        """Update the meter.
-
-        The update is lazy and won't redraw unless the level has changed.
-        """
-        level = pm.batPercent()
-        unit = settings.battery_unit
-
-        if level == self.level:
-            return
-
-        g.setfont(roboto18)
-        if pm.batA() > 0:  # is charging
-            col = GREEN
-        elif level <= 30:
-            col = RED
-        else:
-            col = WHITE
-        g.setcolor(col)
-        if unit == "volt":
-            val = "{}V".format(round(pm.batV(), 1))
-        elif unit == "percent":
-            val = "{}%".format(level)
-        g.text(val, x=200, y=0)
-        self.level = level
-        g.show()
-
-
-class StatusBar:
-    """Combo widget to handle time and battery level."""
-    def __init__(self):
-        self._clock = Clock()
-        self._meter = BatteryMeter()
-
-    def draw(self):
-        """Redraw the status bar from scratch."""
-        self._clock.draw()
-        self._meter.draw()
-
-    def update(self):
-        """Lazily update the status bar.
-        """
-        self._clock.update()
-        self._meter.update()
